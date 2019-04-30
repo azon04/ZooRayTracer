@@ -1,0 +1,1 @@
+Binaries\Debug\RayTracingInOneWeekend.exe > result.ppm
