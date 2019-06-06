@@ -1,1 +1,1 @@
-Binaries\Debug\RayTracingInOneWeekend.exe > result.ppm
+Binaries\Debug\ZooRayTracer.exe > result.ppm

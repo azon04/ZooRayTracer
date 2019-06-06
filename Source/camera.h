@@ -6,22 +6,25 @@
 #define _USE_MATH_DEFINES
 
 #include <math.h>
+#include "rand_helper.h"
 
 vec3 random_in_unit_disk()
 {
 	vec3 p;
 	do 
 	{
-		p = 2.0f * vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), 0) - vec3(1.0f, 1.0f, 0.0f);
-	} while (p.squared_length() >= 1.0f);
+		p = 2.0f * vec3(rand_float(), rand_float(), 0) - vec3(1.0f, 1.0f, 0.0f);
+	} while (dot(p, p) >= 1.0f);
 	return p;
 }
 
 class camera
 {
 public:
-	camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float aperture, float focus_dist)
+	camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1)
 	{
+		time0 = t0;
+		time1 = t1;
 		lens_radius = aperture * 0.5f;
 		float theta = vfov * M_PI / 180.0f;
 		float half_height = tan(0.5f*theta);
@@ -39,7 +42,8 @@ public:
 	{
 		vec3 rd = lens_radius * random_in_unit_disk();
 		vec3 offset = rd.x() * u + rd.y() * v;
-		return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset); 
+		float randTime = time0 + rand_float() * (time1 - time0);
+		return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, randTime); 
 	}
 
 	vec3 origin;
@@ -47,6 +51,7 @@ public:
 	vec3 horizontal;
 	vec3 vertical;
 	vec3 u, v, w;
+	float time0, time1; // shutter time to open and close
 	float lens_radius;
 };
 

@@ -2,13 +2,14 @@
 #define _MATERIAL_H_
 
 #include "hitable.h"
+#include "texture.h"
 
 vec3 random_in_unit_sphere()
 {
 	vec3 p;
 	do
 	{
-		p = 2.0f * vec3(rand() / float(RAND_MAX), rand() / float(RAND_MAX), rand() / float(RAND_MAX)) - vec3(1.0f, 1.0f, 1.0f);
+		p = 2.0f * vec3(rand_float(), rand_float(), rand_float()) - vec3(1.0f, 1.0f, 1.0f);
 	} while (p.squared_length() >= 1.0f);
 
 	return p;
@@ -25,21 +26,22 @@ class material
 {
 public:
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const = 0;
+	virtual vec3 emitted(float u, float v, const vec3& p) const { return vec3(0.0f); }
 };
 
 class lambertian : public material 
 {
 public:
-	lambertian(const vec3& a) : albedo(a) {}
+	lambertian(texture* a) : albedo(a) {}
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const
 	{
 		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-		scattered = ray(rec.p, target - rec.p);
-		attenuation = albedo;
+		scattered = ray(rec.p, target - rec.p, r_in.time());
+		attenuation = albedo->value(rec.u, rec.v, rec.p);
 		return true;
 	}
 
-	vec3 albedo;
+	texture* albedo;
 };
 
 class metal : public material
@@ -59,7 +61,7 @@ public:
 	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const
 	{
 		vec3 reflected = reflect(unit_vector(r_in.direction()), rec.normal);
-		scattered = ray(rec.p, reflected + fuzz * random_in_unit_sphere());
+		scattered = ray(rec.p, reflected + fuzz * random_in_unit_sphere(), r_in.time());
 		attenuation = albedo;
 		return (dot(scattered.direction(), rec.normal) > 0);
 	}
@@ -105,17 +107,26 @@ public:
 
 		if (rand() / float(RAND_MAX) < reflect_prob)
 		{
-			scattered = ray(rec.p, reflected);
+			scattered = ray(rec.p, reflected, r_in.time());
 		}
 		else
 		{
-			scattered = ray(rec.p, refracted);
+			scattered = ray(rec.p, refracted, r_in.time());
 		}
 
 		return true;
 	}
 
 	float ref_idx;
+};
+
+class diffuse_light : public material
+{
+public:
+	diffuse_light(texture* a) : emit(a) {}
+	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const { return false; }
+	virtual vec3 emitted(float u, float v, const vec3& p) const { return emit->value(u, v, p); }
+	texture* emit;
 };
 
 #endif

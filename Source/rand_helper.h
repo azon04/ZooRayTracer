@@ -3,9 +3,15 @@
 
 #include <stdlib.h>
 
+extern "C"
+{
+	double drand48();
+}
+
 float rand_float()
 {
-	return rand() / float(RAND_MAX);
+	return drand48();
 }
+
 
 #endif

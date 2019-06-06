@@ -19,12 +19,14 @@ project "ZooRayTracer"
     language "C++"
     
     targetdir "Binaries/%{cfg.buildcfg}"
-    
+
     files { "Source/*.h", 
-            "Source/*.cpp"
+            "Source/*.cpp",
+            "Source/*.c"
         }
 
     debugdir "./"
+    debugargs { "> output.ppm" }
 
     filter "configurations:Debug"
         defines { "DEBUG" }
