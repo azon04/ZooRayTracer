@@ -2,6 +2,7 @@
 #define  _HITABLELIST_H_
 
 #include "hitable.h"
+#include "rand_helper.h"
 
 class hitable_list : public hitable
 {
@@ -11,6 +12,8 @@ public:
 
 	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
 	virtual bool bounding_box(float t0, float t1, aabb& box) const override;
+	virtual float pdf_value(const vec3& o, const vec3& v) const;
+	virtual vec3 random(const vec3& o) const;
 
 	hitable** list;
 	int list_size;
@@ -53,6 +56,24 @@ bool hitable_list::bounding_box(float t0, float t1, aabb& box) const
 			return false;
 	}
 	return true;
+}
+
+float hitable_list::pdf_value(const vec3& o, const vec3& v) const
+{
+	float weight = 1.0f / list_size;
+	float sum = 0;
+	for (int i = 0; i < list_size; i++)
+	{
+		sum += weight * list[i]->pdf_value(o, v);
+	}
+	return sum;
+}
+
+vec3 hitable_list::random(const vec3& o) const
+{
+	int index = int(rand_float() * list_size);
+	if (index == list_size) index = list_size - 1;
+	return list[index]->random(o);
 }
 
 #endif

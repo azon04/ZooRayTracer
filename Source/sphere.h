@@ -3,10 +3,8 @@
 
 #include "hitable.h"
 #include "math.h"
-
+#include "math_utils.h"
 class material;
-
-#define PI       3.14159265358979323846f
 
 void get_sphere_uv(const vec3& p, float& u, float& v)
 {
@@ -14,6 +12,17 @@ void get_sphere_uv(const vec3& p, float& u, float& v)
 	float thetha = asin(p.y());
 	u =  1 - ( phi + PI) / (2 * PI);
 	v = (thetha + PI / 2.0f) / PI;
+}
+
+vec3 random_to_sphere(float radius, float distance_squared)
+{
+	float r1 = rand_float();
+	float r2 = rand_float();
+	float z = 1 + r2 * (sqrt(1 - radius * radius / distance_squared) - 1.0f);
+	float phi = 2 * PI * r1;
+	float x = cos(phi) * sqrt(1 - z * z);
+	float y = sin(phi) * sqrt(1 - z * z);
+	return vec3(x, y, z);
 }
 
 class sphere : public hitable
@@ -24,6 +33,8 @@ public:
 
 	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
 	virtual bool bounding_box(float t0, float t1, aabb& box) const override;
+	virtual float pdf_value(const vec3& o, const vec3& v) const;
+	virtual vec3 random(const vec3& o) const;
 
 	vec3 center;
 	float radius;
@@ -69,6 +80,28 @@ bool sphere::bounding_box(float t0, float t1, aabb& box) const
 {
 	box = aabb(center - vec3(radius), center + vec3(radius));
 	return true;
+}
+
+float sphere::pdf_value(const vec3& o, const vec3& v) const
+{
+	hit_record rec;
+	if (this->hit(ray(o, v), 0.001f, FLT_MAX, rec))
+	{
+		float cos_theta_max = sqrt(1 - radius * radius / (center - o).squared_length());
+		float solid_angle = 2 * PI * (1 - cos_theta_max);
+		return 1.0f / solid_angle;
+	}
+	else
+		return 0;
+}
+
+vec3 sphere::random(const vec3& o) const
+{
+	vec3 direction = center - o;
+	float distance_squared = direction.squared_length();
+	onb uvw;
+	uvw.build_from_w(direction);
+	return uvw.local(random_to_sphere(radius, distance_squared));
 }
 
 class moving_sphere : public hitable

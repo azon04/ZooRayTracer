@@ -12,22 +12,43 @@
 #include "rand_helper.h"
 #include "bvh.h"
 #include "box.h"
+#include "pdf.h"
 #include "constant_medium.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-vec3 color(const ray& r, hitable* world, int depth)
+vec3 de_nan(const vec3& c)
+{
+	vec3 temp = c;
+	if (!(temp[0] == temp[0])) temp[0] = 0.0f;
+	if (!(temp[1] == temp[1])) temp[1] = 0.0f;
+	if (!(temp[2] == temp[2])) temp[2] = 0.0f;
+	return temp;
+}
+
+vec3 color(const ray& r, hitable* world, hitable *light_shape, int depth)
 {
 	hit_record rec;
 	if (world->hit(r, 0.001f, FLT_MAX, rec))
 	{
-		ray scattered;
-		vec3 attenuation;
-		vec3 emitted = rec.mat_ptr->emitted(rec.u, rec.v, rec.p);
-		if (depth < 50 && rec.mat_ptr->scatter(r, rec, attenuation, scattered))
+		scatter_record srec;
+		vec3 emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
+		float pdf_val;
+		if (depth < 50 && rec.mat_ptr->scatter(r, rec, srec))
 		{
-			return emitted + attenuation * color(scattered, world, depth + 1);
+			if (srec.is_specular)
+			{
+				return srec.attenuation * color(srec.specular_ray, world, light_shape, depth + 1);
+			}
+			else
+			{
+				hitable_pdf p0(light_shape, rec.p);
+				mixture_pdf p(&p0, srec.pdf_ptr);
+				ray scattered = ray(rec.p, p.generate(), r.time());
+				pdf_val = p.value(scattered.direction());
+				return emitted + srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered) * color(scattered, world, light_shape, depth + 1) / pdf_val;
+			}
 		}
 		else
 		{
@@ -136,11 +157,13 @@ hitable* cornell_box()
 
 	list[i++] = new flip_normals(new yz_rect(0, 555.0f, 0.0f, 555.0f, 555.0f, green));
 	list[i++] = new yz_rect(0, 555.0f, 0.0f, 555.0f, 0.0f, red);
-	list[i++] = new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light);
+	list[i++] = new flip_normals(new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light));
 	list[i++] = new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, white);
 	list[i++] = new flip_normals(new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
 	list[i++] = new flip_normals(new xy_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
-	list[i++] = new translate( new rotate_y( new box(vec3(0.0f), vec3(165.0f, 165.0f, 165.0f), white), -18.0f), vec3(130.0f, 0.0f, 65.0f));
+	material* aluminum = new metal(vec3(0.8f, 0.85f, 0.88f), 0.0f);
+	list[i++] = new sphere(vec3(190.0f, 90.0f, 190.0f), 90, aluminum);
+	//list[i++] = new translate( new rotate_y( new box(vec3(0.0f), vec3(165.0f, 165.0f, 165.0f), white), -18.0f), vec3(130.0f, 0.0f, 65.0f));
 	list[i++] = new translate( new rotate_y( new box(vec3(0.0f), vec3(165.0f, 330.0f, 165.0f), white),  15.0f), vec3(265.0f, 0.0f, 295.0f));
 
 	return new hitable_list(list, i);
@@ -230,18 +253,25 @@ hitable* final_chapter2()
 
 int main()
 {
-	int nx = 800;
-	int ny = 800;
+	int nx = 500;
+	int ny = 500;
 	int ns = 1000;
 	std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
 	//hitable* world = two_perlin_spheres();
 	//hitable* world = simple_light();
-	//hitable* world = cornell_box();
-	hitable* world = cornell_smoke();
+	hitable* world = cornell_box();
+	//hitable* world = cornell_smoke();
 	//hitable* world = final_chapter2();
 	//hitable* world = texture_sphere();
 	//hitable* world = random_scene();
+
+	hitable* light_shape = new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, nullptr);
+	hitable* glass_sphere = new sphere(vec3(190.0f, 90.0f, 190.0f), 90, nullptr);
+	hitable* a[2];
+	a[0] = light_shape;
+	a[1] = glass_sphere;
+	hitable_list hlist(a, 2);
 
 	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
 	vec3 lookFrom(278.0f, 278.0f, -800.0f);
@@ -263,11 +293,11 @@ int main()
 				float u = float(i + rand_float()) / float(nx);
 				float v = float(j + rand_float()) / float(ny);
 				ray r = cam.get_ray(u, v);
-				col += color(r, world, 0);
+				col += de_nan(color(r, world, &hlist, 0));
 			}
 			col /= float(ns);
-			//col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
-			col = col / (col + vec3(1.0f));
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
+			//col = col / (col + vec3(1.0f));
 			int ir = int(255.99 * col.r());
 			int ig = int(255.99 * col.g());
 			int ib = int(255.99 * col.b());
