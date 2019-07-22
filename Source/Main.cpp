@@ -14,6 +14,9 @@
 #include "box.h"
 #include "pdf.h"
 #include "constant_medium.h"
+#include "mesh.h"
+
+#include "FileIO/MeshReader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -146,7 +149,7 @@ hitable* simple_light()
 	return new hitable_list(list, 4);
 }
 
-hitable* cornell_box()
+hitable* cornell_box(hitable** light_list)
 {
 	hitable **list = new hitable *[8];
 	int i = 0;
@@ -155,16 +158,29 @@ hitable* cornell_box()
 	material* green = new lambertian(new constant_texture(vec3(0.12f, 0.45f, 0.15f)));
 	material* light = new diffuse_light(new constant_texture(vec3(15.0f, 15.0f, 15.0f)));
 
-	list[i++] = new flip_normals(new yz_rect(0, 555.0f, 0.0f, 555.0f, 555.0f, green));
-	list[i++] = new yz_rect(0, 555.0f, 0.0f, 555.0f, 0.0f, red);
-	list[i++] = new flip_normals(new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light));
-	list[i++] = new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, white);
-	list[i++] = new flip_normals(new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
+ 	list[i++] = new flip_normals(new yz_rect(0, 555.0f, 0.0f, 555.0f, 555.0f, green));
+ 	list[i++] = new yz_rect(0, 555.0f, 0.0f, 555.0f, 0.0f, red);
+	hitable* light_plane = new flip_normals(new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light));
+	list[i++] = light_plane;
+ 	list[i++] = new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, white);
+ 	list[i++] = new flip_normals(new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
 	list[i++] = new flip_normals(new xy_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
+	//list[i++] = new triangle(vec3(0.0f, 0.0f, 555.0f), vec3(0.0f, 555.0f, 755.0f), vec3(555.0f, 555.0f, 555.0f), white);
 	material* aluminum = new metal(vec3(0.8f, 0.85f, 0.88f), 0.0f);
-	list[i++] = new sphere(vec3(190.0f, 90.0f, 190.0f), 90, aluminum);
+	material* glass = new dielectric(1.5f);
+	MeshReader reader;
+	mesh* _mesh = reader.parse("Input/bunny.obj", 1000.0f);
+	_mesh->mat = white;
+	hitable* _meshHitable = new translate(new rotate_y(_mesh, 180.0f), vec3(265.0f, 0.0f, 290.0f));
+	list[i++] = _meshHitable;
+	list[i++] = new sphere(vec3(190.0f, 90.0f, 190.0f), 90, glass);
 	//list[i++] = new translate( new rotate_y( new box(vec3(0.0f), vec3(165.0f, 165.0f, 165.0f), white), -18.0f), vec3(130.0f, 0.0f, 65.0f));
-	list[i++] = new translate( new rotate_y( new box(vec3(0.0f), vec3(165.0f, 330.0f, 165.0f), white),  15.0f), vec3(265.0f, 0.0f, 295.0f));
+	//list[i++] = new translate( new rotate_y( new box(vec3(0.0f), vec3(165.0f, 330.0f, 165.0f), white),  15.0f), vec3(265.0f, 0.0f, 295.0f));
+
+	hitable** a = new hitable*[2];
+	a[0] = new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, nullptr);
+	a[1] = new sphere(vec3(190.0f, 90.0f, 190.0f), 90, nullptr);
+	*light_list = new hitable_list(a, 2);
 
 	return new hitable_list(list, i);
 }
@@ -258,20 +274,14 @@ int main()
 	int ns = 1000;
 	std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
+	hitable* light_list;
 	//hitable* world = two_perlin_spheres();
 	//hitable* world = simple_light();
-	hitable* world = cornell_box();
+	hitable* world = cornell_box(&light_list);
 	//hitable* world = cornell_smoke();
 	//hitable* world = final_chapter2();
 	//hitable* world = texture_sphere();
 	//hitable* world = random_scene();
-
-	hitable* light_shape = new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, nullptr);
-	hitable* glass_sphere = new sphere(vec3(190.0f, 90.0f, 190.0f), 90, nullptr);
-	hitable* a[2];
-	a[0] = light_shape;
-	a[1] = glass_sphere;
-	hitable_list hlist(a, 2);
 
 	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
 	vec3 lookFrom(278.0f, 278.0f, -800.0f);
@@ -293,14 +303,14 @@ int main()
 				float u = float(i + rand_float()) / float(nx);
 				float v = float(j + rand_float()) / float(ny);
 				ray r = cam.get_ray(u, v);
-				col += de_nan(color(r, world, &hlist, 0));
+				col += de_nan(color(r, world, light_list, 0));
 			}
 			col /= float(ns);
 			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 			//col = col / (col + vec3(1.0f));
-			int ir = int(255.99 * col.r());
-			int ig = int(255.99 * col.g());
-			int ib = int(255.99 * col.b());
+			int ir = int(255.99 * fmin( 1.0f, col.r()));
+			int ig = int(255.99 * fmin( 1.0f, col.g()));
+			int ib = int(255.99 * fmin( 1.0f, col.b()));
 
 			std::cout << ir << " " << ig << " " << ib << "\n";
 		}
