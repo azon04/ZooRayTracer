@@ -24,7 +24,7 @@ public:
 	{
 		vec3 min = points[0];
 		vec3 max = points[0];
-		for (int i = 1; i < 2; i++)
+		for (int i = 1; i < 3; i++)
 		{
 			for (int el = 0; el < 3; el++)
 			{

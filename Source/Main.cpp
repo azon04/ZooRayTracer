@@ -38,7 +38,7 @@ vec3 color(const ray& r, hitable* world, hitable *light_shape, int depth)
 		scatter_record srec;
 		vec3 emitted = rec.mat_ptr->emitted(r, rec, rec.u, rec.v, rec.p);
 		float pdf_val;
-		if (depth < 50 && rec.mat_ptr->scatter(r, rec, srec))
+		if (depth < 25 && rec.mat_ptr->scatter(r, rec, srec))
 		{
 			if (srec.is_specular)
 			{
@@ -158,18 +158,18 @@ hitable* cornell_box(hitable** light_list)
 	material* green = new lambertian(new constant_texture(vec3(0.12f, 0.45f, 0.15f)));
 	material* light = new diffuse_light(new constant_texture(vec3(15.0f, 15.0f, 15.0f)));
 
- 	list[i++] = new flip_normals(new yz_rect(0, 555.0f, 0.0f, 555.0f, 555.0f, green));
- 	list[i++] = new yz_rect(0, 555.0f, 0.0f, 555.0f, 0.0f, red);
-	hitable* light_plane = new flip_normals(new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light));
-	list[i++] = light_plane;
- 	list[i++] = new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, white);
- 	list[i++] = new flip_normals(new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
-	list[i++] = new flip_normals(new xy_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
+  	list[i++] = new flip_normals(new yz_rect(0, 555.0f, 0.0f, 555.0f, 555.0f, green));
+  	list[i++] = new yz_rect(0, 555.0f, 0.0f, 555.0f, 0.0f, red);
+ 	hitable* light_plane = new flip_normals(new xz_rect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, light));
+ 	list[i++] = light_plane;
+   	list[i++] = new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 0.0f, white);
+   	list[i++] = new flip_normals(new xz_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
+  	list[i++] = new flip_normals(new xy_rect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
 	//list[i++] = new triangle(vec3(0.0f, 0.0f, 555.0f), vec3(0.0f, 555.0f, 755.0f), vec3(555.0f, 555.0f, 555.0f), white);
 	material* aluminum = new metal(vec3(0.8f, 0.85f, 0.88f), 0.0f);
 	material* glass = new dielectric(1.5f);
 	MeshReader reader;
-	mesh* _mesh = reader.parse("Input/bunny.obj", 1000.0f);
+	mesh* _mesh = reader.parse("Input/bunny_200.obj", 500.0f);
 	_mesh->mat = white;
 	hitable* _meshHitable = new translate(new rotate_y(_mesh, 180.0f), vec3(265.0f, 0.0f, 290.0f));
 	list[i++] = _meshHitable;
@@ -271,7 +271,7 @@ int main()
 {
 	int nx = 500;
 	int ny = 500;
-	int ns = 1000;
+	int ns = 250;
 	std::cout << "P3\n" << nx << " " << ny << "\n255\n";
 
 	hitable* light_list;
