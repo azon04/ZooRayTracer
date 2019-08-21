@@ -1,7 +1,7 @@
 #ifndef _PERLIN_H_
 #define _PERLIN_H_
 
-#include "vec3.h"
+#include "Vec3.h"
 #include "rand_helper.h"
 
 inline float trilinear_interp(float c[2][2][2], float u, float v, float w)
@@ -16,7 +16,7 @@ inline float trilinear_interp(float c[2][2][2], float u, float v, float w)
 	return accum;
 }
 
-inline float perlin_interp(vec3 c[2][2][2], float u, float v, float w)
+inline float perlin_interp(Vec3 c[2][2][2], float u, float v, float w)
 {
 	float accum = 0.0f;
 
@@ -29,7 +29,7 @@ inline float perlin_interp(vec3 c[2][2][2], float u, float v, float w)
 		for (int j = 0; j < 2; j++)
 			for (int k = 0; k < 2; k++)
 			{
-				vec3 weight_v(u - i, v - j, w - k);
+				Vec3 weight_v(u - i, v - j, w - k);
 				accum += (i * uu + (1.0f - i) * (1.0f - uu)) *
 					(j * vv + (1.0f - j) * (1.0f - vv)) *
 					(k * ww + (1.0f - k) * (1.0f - ww)) * dot(c[i][j][k], weight_v);
@@ -37,10 +37,10 @@ inline float perlin_interp(vec3 c[2][2][2], float u, float v, float w)
 	return accum;
 }
 
-class perlin
+class Perlin
 {
 public:
-	float noise(const vec3& p) const
+	float noise(const Vec3& p) const
 	{
 		float u = p.x() - floor(p.x());
 		float v = p.y() - floor(p.y());
@@ -50,7 +50,7 @@ public:
 		int j = floor(p.y());
 		int k = floor(p.z());
 
-		vec3 c[2][2][2];
+		Vec3 c[2][2][2];
 		for (int di = 0; di < 2; di++)
 			for (int dj = 0; dj < 2; dj++)
 				for (int dk = 0; dk < 2; dk++)
@@ -59,10 +59,10 @@ public:
 		return perlin_interp(c, u, v, w);
 	}
 
-	float turb(const vec3& p, int depth = 7) const
+	float turb(const Vec3& p, int depth = 7) const
 	{
 		float accum = 0;
-		vec3 temp_p = p;
+		Vec3 temp_p = p;
 		float weight = 1.0f;
 		for (int i = 0; i < depth; i++)
 		{
@@ -74,47 +74,10 @@ public:
 		return fabs(accum);
 	}
 
-	static vec3 *ranvec;
+	static Vec3 *ranvec;
 	static int *perm_x;
 	static int *perm_y;
 	static int *perm_z;
 };
-
-static vec3* perlin_generate()
-{
-	vec3* p = new vec3[256];
-	for (int i = 0; i < 256; i++)
-	{
-		p[i] = unit_vector(vec3(-1.0f + 2.0f * rand_float(), -1.0f + 2.0f * rand_float(), -1.0f + 2.0f * rand_float()));
-	}
-	return p;
-}
-
-void permute(int* p, int n)
-{
-	for (int i = n - 1; i > 0; i--)
-	{
-		int target = int(rand_float() * (i + 1));
-		int tmp = p[i];
-		p[i] = p[target];
-		p[target] = tmp;
-	}
-}
-
-static int* perlin_generate_perm()
-{
-	int* p = new int[256];
-	for (int i = 0; i < 256; i++)
-	{
-		p[i] = i;
-	}
-	permute(p, 256);
-	return p;
-}
-
-vec3 * perlin::ranvec = perlin_generate();
-int * perlin::perm_x = perlin_generate_perm();
-int * perlin::perm_y = perlin_generate_perm();
-int * perlin::perm_z = perlin_generate_perm();
 
 #endif

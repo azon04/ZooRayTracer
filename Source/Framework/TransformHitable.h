@@ -1,14 +1,14 @@
 #ifndef _TRANSFORM_HIT_H_
 #define _TRANSFORM_HIT_H_
 
-#include "hitable.h"
-#include "vec3.h"
+#include "Hitable.h"
+#include "Vec3.h"
 
-class flip_normals : public hitable
+class FlipNormals : public Hitable
 {
 public:
-	flip_normals(hitable *p) : ptr(p) {}
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+	FlipNormals(Hitable *p) : ptr(p) {}
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 	{
 		if (ptr->hit(r, t_min, t_max, rec))
 		{
@@ -18,27 +18,27 @@ public:
 		else
 			return false;
 	}
-	virtual bool bounding_box(float t0, float t1, aabb& box) const 
+	virtual bool bounding_box(float t0, float t1, AABB& box) const 
 	{
 		return ptr->bounding_box(t0, t1, box);
 	}
-	hitable *ptr;
+	Hitable *ptr;
 };
 
-class translate : public hitable
+class TranslateHitable : public Hitable
 {
 public:
-	translate(hitable* p, const vec3& displacement) : ptr(p), offset(displacement) {}
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-	virtual bool bounding_box(float t0, float t1, aabb& box) const;
+	TranslateHitable(Hitable* p, const Vec3& displacement) : ptr(p), offset(displacement) {}
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+	virtual bool bounding_box(float t0, float t1, AABB& box) const;
 
-	hitable *ptr;
-	vec3 offset;
+	Hitable *ptr;
+	Vec3 offset;
 };
 
-bool translate::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool TranslateHitable::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	ray moved_r(r.origin() - offset, r.direction(), r.time());
+	Ray moved_r(r.origin() - offset, r.direction(), r.time());
 	if (ptr->hit(moved_r, t_min, t_max, rec))
 	{
 		rec.p += offset;
@@ -50,11 +50,11 @@ bool translate::hit(const ray& r, float t_min, float t_max, hit_record& rec) con
 	}
 }
 
-bool translate::bounding_box(float t0, float t1, aabb& box) const
+bool TranslateHitable::bounding_box(float t0, float t1, AABB& box) const
 {
 	if (ptr->bounding_box(t0, t1, box))
 	{
-		box = aabb(box.min() + offset, box.max() + offset);
+		box = AABB(box.min() + offset, box.max() + offset);
 		return true;
 	}
 	else
@@ -63,24 +63,24 @@ bool translate::bounding_box(float t0, float t1, aabb& box) const
 	}
 }
 
-class rotate_y : public hitable
+class RotateY : public Hitable
 {
 public:
-	rotate_y(hitable* p, float angle);
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-	virtual bool bounding_box(float t0, float t1, aabb& box) const
+	RotateY(Hitable* p, float angle);
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+	virtual bool bounding_box(float t0, float t1, AABB& box) const
 	{
 		box = bbox;
 		return hasBox;
 	}
-	hitable* ptr;
+	Hitable* ptr;
 	float sin_theta;
 	float cos_theta;
 	bool hasBox;
-	aabb bbox;
+	AABB bbox;
 };
 
-rotate_y::rotate_y(hitable* p, float angle)
+RotateY::RotateY(Hitable* p, float angle)
 {
 	float radians = (PI / 180.0f) * angle;
 	sin_theta = sin(radians);
@@ -88,8 +88,8 @@ rotate_y::rotate_y(hitable* p, float angle)
 	ptr = p;
 
 	hasBox = ptr->bounding_box(0, 1, bbox);
-	vec3 min(FLT_MAX);
-	vec3 max(-FLT_MAX);
+	Vec3 min(FLT_MAX);
+	Vec3 max(-FLT_MAX);
 	for (int i = 0; i < 2; i++)
 	{
 		for (int j = 0; j < 2; j++)
@@ -101,7 +101,7 @@ rotate_y::rotate_y(hitable* p, float angle)
 				float z = k * bbox.max().z() + (1 - k)*bbox.min().z();
 				float newx = cos_theta * x + sin_theta * z;
 				float newz = -sin_theta * x + cos_theta * z;
-				vec3 tester(newx, y, newz);
+				Vec3 tester(newx, y, newz);
 				for (int c = 0; c < 3; c++)
 				{
 					if (tester[c] > max[c])
@@ -112,22 +112,22 @@ rotate_y::rotate_y(hitable* p, float angle)
 			}
 		}
 	}
-	bbox = aabb(min, max);
+	bbox = AABB(min, max);
 }
 
-bool rotate_y::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool RotateY::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	vec3 origin = r.origin();
-	vec3 direction = r.direction();
+	Vec3 origin = r.origin();
+	Vec3 direction = r.direction();
 	origin.x() = cos_theta * r.origin().x() - sin_theta * r.origin().z();
 	origin.z() = sin_theta * r.origin().x() + cos_theta * r.origin().z();
 	direction.x() = cos_theta * r.direction().x() - sin_theta * r.direction().z();
 	direction.z() = sin_theta * r.direction().x() + cos_theta * r.direction().z();
-	ray rotated_t(origin, direction, r.time());
+	Ray rotated_t(origin, direction, r.time());
 	if (ptr->hit(rotated_t, t_min, t_max, rec))
 	{
-		vec3 p = rec.p;
-		vec3 normal = rec.normal;
+		Vec3 p = rec.p;
+		Vec3 normal = rec.normal;
 		p.x() = cos_theta * rec.p.x() + sin_theta * rec.p.z();
 		p.z() = -sin_theta * rec.p.x() + cos_theta * rec.p.z();
 		normal.x() = cos_theta * rec.normal.x() + sin_theta * rec.normal.z();

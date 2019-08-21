@@ -1,6 +1,6 @@
-#include "vec3.h"
+#include "Vec3.h"
 
-vec3& vec3::operator+=(const vec3& v2)
+Vec3& Vec3::operator+=(const Vec3& v2)
 {
 	e[0] += v2[0];
 	e[1] += v2[1];
@@ -9,7 +9,7 @@ vec3& vec3::operator+=(const vec3& v2)
 	return *this;
 }
 
-vec3& vec3::operator-=(const vec3& v2)
+Vec3& Vec3::operator-=(const Vec3& v2)
 {
 	e[0] -= v2[0];
 	e[1] -= v2[1];
@@ -18,7 +18,7 @@ vec3& vec3::operator-=(const vec3& v2)
 	return *this;
 }
 
-vec3& vec3::operator/=(const float t)
+Vec3& Vec3::operator/=(const float t)
 {
 	e[0] /= t;
 	e[1] /= t;
@@ -27,7 +27,7 @@ vec3& vec3::operator/=(const float t)
 	return *this;
 }
 
-vec3& vec3::operator*=(const float t)
+Vec3& Vec3::operator*=(const float t)
 {
 	e[0] *= t;
 	e[1] *= t;
@@ -36,7 +36,7 @@ vec3& vec3::operator*=(const float t)
 	return *this;
 }
 
-vec3& vec3::operator/=(const vec3& v2)
+Vec3& Vec3::operator/=(const Vec3& v2)
 {
 	e[0] /= v2[0];
 	e[1] /= v2[1];
@@ -45,7 +45,7 @@ vec3& vec3::operator/=(const vec3& v2)
 	return *this;
 }
 
-vec3& vec3::operator*=(const vec3& v2)
+Vec3& Vec3::operator*=(const Vec3& v2)
 {
 	e[0] *= v2[0];
 	e[1] *= v2[1];
@@ -54,66 +54,66 @@ vec3& vec3::operator*=(const vec3& v2)
 	return *this;
 }
 
-vec3 unit_vector(const vec3& v)
+Vec3 unit_vector(const Vec3& v)
 {
 	return v / v.length();
 }
 
-vec3 operator+(const vec3& v1, const vec3& v2)
+Vec3 operator+(const Vec3& v1, const Vec3& v2)
 {
-	return vec3(v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]);
+	return Vec3(v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]);
 }
 
-vec3 operator-(const vec3& v1, const vec3& v2)
+Vec3 operator-(const Vec3& v1, const Vec3& v2)
 {
-	return vec3(v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]);
+	return Vec3(v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]);
 }
 
-vec3 operator*(const vec3& v1, const vec3& v2)
+Vec3 operator*(const Vec3& v1, const Vec3& v2)
 {
-	return vec3(v1[0] * v2[0], v1[1] * v2[1], v1[2] * v2[2]);
+	return Vec3(v1[0] * v2[0], v1[1] * v2[1], v1[2] * v2[2]);
 }
 
-vec3 operator*(const float t, const vec3& v)
+Vec3 operator*(const float t, const Vec3& v)
 {
-	return vec3(v[0] * t, v[1] * t, v[2] * t);
+	return Vec3(v[0] * t, v[1] * t, v[2] * t);
 }
 
-vec3 operator*(const vec3& v, const float t)
+Vec3 operator*(const Vec3& v, const float t)
 {
-	return vec3(v[0] * t, v[1] * t, v[2] * t);
+	return Vec3(v[0] * t, v[1] * t, v[2] * t);
 }
 
-vec3 operator/(const vec3& v1, const vec3& v2)
+Vec3 operator/(const Vec3& v1, const Vec3& v2)
 {
-	return vec3(v1[0] / v2[0], v1[1] / v2[1], v1[2] / v2[2]);
+	return Vec3(v1[0] / v2[0], v1[1] / v2[1], v1[2] / v2[2]);
 }
 
-vec3 operator/(const vec3& v, const float t)
+Vec3 operator/(const Vec3& v, const float t)
 {
-	return vec3(v[0] / t, v[1] / t, v[2] / t);
+	return Vec3(v[0] / t, v[1] / t, v[2] / t);
 }
 
-float dot(const vec3& v1, const vec3& v2)
+float dot(const Vec3& v1, const Vec3& v2)
 {
 	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 }
 
-vec3 cross(const vec3& v1, const vec3& v2)
+Vec3 cross(const Vec3& v1, const Vec3& v2)
 {
-	return vec3((v1[1] * v2[2] - v1[2] * v2[1]),
+	return Vec3((v1[1] * v2[2] - v1[2] * v2[1]),
 		-(v1[0] * v2[2] - v1[2] * v2[0]),
 		(v1[0] * v2[1] - v1[1] * v2[0]));
 }
 
-vec3 reflect(const vec3& v, const vec3& n)
+Vec3 reflect(const Vec3& v, const Vec3& n)
 {
 	return v - 2 * dot(v, n) * n;
 }
 
-bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted)
+bool refract(const Vec3& v, const Vec3& n, float ni_over_nt, Vec3& refracted)
 {
-	vec3 uv = unit_vector(v);
+	Vec3 uv = unit_vector(v);
 	float dt = dot(uv, n);
 	float discriminant = 1.0f - ni_over_nt * ni_over_nt*(1 - dt * dt);
 	if (discriminant > 0.0f)
@@ -127,17 +127,17 @@ bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted)
 	}
 }
 
-void onb::build_from_w(const vec3& n)
+void onb::build_from_w(const Vec3& n)
 {
 	axis[2] = unit_vector(n);
-	vec3 a;
+	Vec3 a;
 	if (fabs(w().x()) > 0.9)
 	{
-		a = vec3(0.0f, 1.0f, 0.0f);
+		a = Vec3(0.0f, 1.0f, 0.0f);
 	}
 	else
 	{
-		a = vec3(1.0f, 0.0f, 0.0f);
+		a = Vec3(1.0f, 0.0f, 0.0f);
 	}
 
 	axis[1] = unit_vector(cross(w(), a));

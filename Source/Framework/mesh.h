@@ -1,13 +1,13 @@
 #ifndef _MESH_H_
 #define _MESH_H_
 
-#include "hitable.h"
+#include "Hitable.h"
 #include "bvh.h"
 
-class triangle : public hitable
+class Triangle : public Hitable
 {
 public:
-	triangle(const vec3& p1, const vec3& p2, const vec3& p3, material* _mat)
+	Triangle(const Vec3& p1, const Vec3& p2, const Vec3& p3, Material* _mat)
 	{
 		points[0] = p1;
 		points[1] = p2;
@@ -15,15 +15,15 @@ public:
 		mat = _mat;
 	}
 
-	~triangle() {}
+	~Triangle() {}
 
 	// Hitable functions
-	virtual bool hit(const ray& r, float  t_min, float t_max, hit_record& rec) const;
+	virtual bool hit(const Ray& r, float  t_min, float t_max, HitRecord& rec) const;
 
-	virtual bool bounding_box(float t0, float t1, aabb& box) const
+	virtual bool bounding_box(float t0, float t1, AABB& box) const
 	{
-		vec3 min = points[0];
-		vec3 max = points[0];
+		Vec3 min = points[0];
+		Vec3 max = points[0];
 		for (int i = 1; i < 3; i++)
 		{
 			for (int el = 0; el < 3; el++)
@@ -49,19 +49,19 @@ public:
 			}
 		}
 
-		box = aabb(min, max);
+		box = AABB(min, max);
 		return true;
 	}
 
-	material* mat;
-	vec3 points[3];
+	Material* mat;
+	Vec3 points[3];
 };
 
-bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool Triangle::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	vec3 v1 = points[0] - points[1];
-	vec3 v2 = points[2] - points[1];
-	vec3 normal_plane = unit_vector(cross(v1, v2));
+	Vec3 v1 = points[0] - points[1];
+	Vec3 v2 = points[2] - points[1];
+	Vec3 normal_plane = unit_vector(cross(v1, v2));
 
 	// This will make triangle double sided
 	float dot_ = dot(-normal_plane, r.direction());
@@ -74,12 +74,12 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) cons
 	if (t < t_min || t > t_max)
 		return false;
 
-	vec3 pointAtT = r.point_at_parameter(t);
-	vec3 pointInTriangle = pointAtT - points[1];
-	vec3 v3 = points[2] - points[0];
-	vec3 cross1 = cross(v1, pointInTriangle);
-	vec3 cross2 = cross(pointInTriangle, v2);
-	vec3 cross3 = cross(v3, pointAtT - points[0]);
+	Vec3 pointAtT = r.point_at_parameter(t);
+	Vec3 pointInTriangle = pointAtT - points[1];
+	Vec3 v3 = points[2] - points[0];
+	Vec3 cross1 = cross(v1, pointInTriangle);
+	Vec3 cross2 = cross(pointInTriangle, v2);
+	Vec3 cross3 = cross(v3, pointAtT - points[0]);
 
 	if (!(dot(cross1, cross2) > 0.0f && dot(cross2, cross3) > 0.0f))
 		return false;
@@ -96,30 +96,30 @@ bool triangle::hit(const ray& r, float t_min, float t_max, hit_record& rec) cons
 	return true;
 }
 
-class mesh : public hitable
+class Mesh : public Hitable
 {
 public:
 
-	mesh(int triangleSize)
+	Mesh(int triangleSize)
 		: triangle_size(triangleSize),
 		triangle_count(0),
 		mat(nullptr)
 	{
-		triangles = new triangle*[triangleSize];
+		triangles = new Triangle*[triangleSize];
 	}
-	~mesh() {}
+	~Mesh() {}
 
-	void addTriangle(triangle* newTriangle)
+	void addTriangle(Triangle* newTriangle)
 	{
 		triangles[triangle_count++] = newTriangle;
 	}
 
 	void setupMesh()
 	{
-		triangle_bvh = new bvh_node((hitable**)triangles, triangle_count, 0.0f, 1.0f);
+		triangle_bvh = new BVHNode((Hitable**)triangles, triangle_count, 0.0f, 1.0f);
 	}
 
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const override
 	{
 		if (triangle_bvh->hit(r, t_min, t_max, rec))
 		{
@@ -129,14 +129,14 @@ public:
 		return false;
 	}
 
-	virtual bool bounding_box(float t0, float t1, aabb& box) const override
+	virtual bool bounding_box(float t0, float t1, AABB& box) const override
 	{
 		return triangle_bvh->bounding_box(t0, t1, box);
 	}
 
-	bvh_node* triangle_bvh;
-	triangle** triangles;
-	material* mat;
+	BVHNode* triangle_bvh;
+	Triangle** triangles;
+	Material* mat;
 	int triangle_count;
 	int triangle_size;
 };

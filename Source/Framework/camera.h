@@ -1,27 +1,18 @@
 #ifndef _CAMERA_H_
 #define _CAMERA_H_
 
-#include "ray.h"
+#include "Ray.h"
 
 #define _USE_MATH_DEFINES
 
 #include <math.h>
 #include "rand_helper.h"
+#include "math_utils.h"
 
-vec3 random_in_unit_disk()
-{
-	vec3 p;
-	do 
-	{
-		p = 2.0f * vec3(rand_float(), rand_float(), 0) - vec3(1.0f, 1.0f, 0.0f);
-	} while (dot(p, p) >= 1.0f);
-	return p;
-}
-
-class camera
+class Camera
 {
 public:
-	camera(vec3 lookFrom, vec3 lookAt, vec3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1)
+	Camera(Vec3 lookFrom, Vec3 lookAt, Vec3 vup, float vfov, float aspect, float aperture, float focus_dist, float t0, float t1)
 	{
 		time0 = t0;
 		time1 = t1;
@@ -38,19 +29,19 @@ public:
 		vertical = 2 * half_height * focus_dist * v;;
 	}
 
-	ray get_ray(float s, float t) 
+	Ray get_ray(float s, float t) 
 	{
-		vec3 rd = lens_radius * random_in_unit_disk();
-		vec3 offset = rd.x() * u + rd.y() * v;
+		Vec3 rd = lens_radius * random_in_unit_disk();
+		Vec3 offset = rd.x() * u + rd.y() * v;
 		float randTime = time0 + rand_float() * (time1 - time0);
-		return ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, randTime); 
+		return Ray(origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset, randTime); 
 	}
 
-	vec3 origin;
-	vec3 lower_left_corner;
-	vec3 horizontal;
-	vec3 vertical;
-	vec3 u, v, w;
+	Vec3 origin;
+	Vec3 lower_left_corner;
+	Vec3 horizontal;
+	Vec3 vertical;
+	Vec3 u, v, w;
 	float time0, time1; // shutter time to open and close
 	float lens_radius;
 };

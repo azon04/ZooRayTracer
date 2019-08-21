@@ -1,42 +1,42 @@
 #ifndef _CONSTANT_MEDIUM_H_
 #define _CONSTANT_MEDIUM_H_
 
-#include "hitable.h"
-#include "material.h"
+#include "Hitable.h"
+#include "Material.h"
 
-class isotropic : public material
+class isotropic : public Material
 {
 public:
-	isotropic(texture* a) : albedo(a) {}
-	virtual bool scatter(const ray& r_in, const hit_record& rec, vec3& attenuation, ray& scattered) const
+	isotropic(Texture* a) : albedo(a) {}
+	virtual bool scatter(const Ray& r_in, const HitRecord& rec, Vec3& attenuation, Ray& scattered) const
 	{
-		scattered = ray(rec.p, random_in_unit_sphere());
+		scattered = Ray(rec.p, random_in_unit_sphere());
 		attenuation = albedo->value(rec.u, rec.v, rec.p);
 		return true;
 	}
-	texture* albedo;
+	Texture* albedo;
 };
 
-class constant_medium : public hitable
+class constant_medium : public Hitable
 {
 public:
-	constant_medium(hitable* b, float d, texture* a) : boundary(b), density(d)
+	constant_medium(Hitable* b, float d, Texture* a) : boundary(b), density(d)
 	{
 		phase_function = new isotropic(a);
 	}
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-	virtual bool bounding_box(float t0, float t1, aabb& box) const
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+	virtual bool bounding_box(float t0, float t1, AABB& box) const
 	{
 		return boundary->bounding_box(t0, t1, box);
 	}
-	hitable* boundary;
+	Hitable* boundary;
 	float density;
-	material *phase_function;
+	Material *phase_function;
 };
 
-bool constant_medium::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool constant_medium::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	hit_record rec1, rec2;
+	HitRecord rec1, rec2;
 	if (boundary->hit(r, -FLT_MAX, FLT_MAX, rec1))
 	{
 		if (boundary->hit(r, rec1.t + 0.0001f, FLT_MAX, rec2))
@@ -55,7 +55,7 @@ bool constant_medium::hit(const ray& r, float t_min, float t_max, hit_record& re
 			{
 				rec.t = rec1.t + hit_distance / r.direction().length();
 				rec.p = r.point_at_parameter(rec.t);
-				rec.normal = vec3(1.0f, 0.0f, 0.0f); // arbitrary
+				rec.normal = Vec3(1.0f, 0.0f, 0.0f); // arbitrary
 				rec.mat_ptr = phase_function;
 				return true;
 			}

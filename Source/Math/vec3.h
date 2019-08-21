@@ -5,16 +5,16 @@
 #include <stdlib.h>
 #include <iostream>
 
-class vec3 
+class Vec3 
 {
 public:
-	vec3() {}
-	vec3(float e0)
+	Vec3() {}
+	Vec3(float e0)
 	{
 		e[0] = e[1] = e[2] = e0;
 	}
 
-	vec3(float e0, float e1, float e2) 
+	Vec3(float e0, float e1, float e2) 
 	{
 		e[0] = e0;
 		e[1] = e1;
@@ -37,17 +37,17 @@ public:
 	inline float g() const { return e[1]; }
 	inline float b() const { return e[2]; }
 
-	inline const vec3& operator+() const { return *this; }
-	inline vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
+	inline const Vec3& operator+() const { return *this; }
+	inline Vec3 operator-() const { return Vec3(-e[0], -e[1], -e[2]); }
 	inline float& operator[](int i) { return e[i]; }
 	inline float operator[](int i) const { return e[i]; }
 	
-	vec3& operator+=(const vec3& v2);
-	vec3& operator-=(const vec3& v2);
-	vec3& operator*=(const vec3& v2);
-	vec3& operator/=(const vec3& v2);
-	vec3& operator*=(const float t);
-	vec3& operator/=(const float t);
+	Vec3& operator+=(const Vec3& v2);
+	Vec3& operator-=(const Vec3& v2);
+	Vec3& operator*=(const Vec3& v2);
+	Vec3& operator/=(const Vec3& v2);
+	Vec3& operator*=(const float t);
+	Vec3& operator/=(const float t);
 
 	inline float length() const 
 	{
@@ -67,27 +67,27 @@ public:
 	float e[3];
 };
 
-vec3 unit_vector(const vec3& v);
-vec3 operator+(const vec3& v1, const vec3& v2);
-vec3 operator-(const vec3& v1, const vec3& v2);
-vec3 operator*(const vec3& v1, const vec3& v2);
-vec3 operator/(const vec3& v1, const vec3& v2);
-vec3 operator*(const float t, const vec3& v);
-vec3 operator*(const vec3& v, const float t);
-vec3 operator/(const vec3& v, const float t);
-float dot(const vec3& v1, const vec3& v2);
-vec3 cross(const vec3& v1, const vec3& v2);
+Vec3 unit_vector(const Vec3& v);
+Vec3 operator+(const Vec3& v1, const Vec3& v2);
+Vec3 operator-(const Vec3& v1, const Vec3& v2);
+Vec3 operator*(const Vec3& v1, const Vec3& v2);
+Vec3 operator/(const Vec3& v1, const Vec3& v2);
+Vec3 operator*(const float t, const Vec3& v);
+Vec3 operator*(const Vec3& v, const float t);
+Vec3 operator/(const Vec3& v, const float t);
+float dot(const Vec3& v1, const Vec3& v2);
+Vec3 cross(const Vec3& v1, const Vec3& v2);
 
-vec3 reflect(const vec3& v, const vec3& n);
-bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted);
+Vec3 reflect(const Vec3& v, const Vec3& n);
+bool refract(const Vec3& v, const Vec3& n, float ni_over_nt, Vec3& refracted);
 
-inline std::istream& operator>>(std::istream& is, vec3& t)
+inline std::istream& operator>>(std::istream& is, Vec3& t)
 {
 	is >> t[0] >> t[1] >> t[2];
 	return is;
 }
 
-inline std::ostream& operator <<(std::ostream& os, vec3& t)
+inline std::ostream& operator <<(std::ostream& os, Vec3& t)
 {
 	os << t[0] << " " << t[1] << " " << t[2];
 	return os;
@@ -97,14 +97,14 @@ class onb
 {
 public:
 	onb() {}
-	inline vec3 operator[](int i) const { return axis[i]; }
-	vec3 u() const { return axis[0]; }
-	vec3 v() const { return axis[1]; }
-	vec3 w() const { return axis[2]; }
-	vec3 local(float a, float b, float c) const { return a * u() + b * v() + c * w(); }
-	vec3 local(const vec3& a) const { return a.x() * u() + a.y() * v() + a.z() * w(); }
-	void build_from_w(const vec3& n);
-	vec3 axis[3];
+	inline Vec3 operator[](int i) const { return axis[i]; }
+	Vec3 u() const { return axis[0]; }
+	Vec3 v() const { return axis[1]; }
+	Vec3 w() const { return axis[2]; }
+	Vec3 local(float a, float b, float c) const { return a * u() + b * v() + c * w(); }
+	Vec3 local(const Vec3& a) const { return a.x() * u() + a.y() * v() + a.z() * w(); }
+	void build_from_w(const Vec3& n);
+	Vec3 axis[3];
 };
 
 

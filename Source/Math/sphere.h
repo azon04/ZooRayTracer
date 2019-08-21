@@ -1,12 +1,13 @@
 #ifndef _SPHERE_H_
 #define _SPHERE_H_
 
-#include "hitable.h"
+#include "Hitable.h"
 #include "math.h"
 #include "math_utils.h"
-class material;
 
-void get_sphere_uv(const vec3& p, float& u, float& v)
+class Material;
+
+void get_sphere_uv(const Vec3& p, float& u, float& v)
 {
 	float phi = atan2(p.z(), p.x());
 	float thetha = asin(p.y());
@@ -14,7 +15,7 @@ void get_sphere_uv(const vec3& p, float& u, float& v)
 	v = (thetha + PI / 2.0f) / PI;
 }
 
-vec3 random_to_sphere(float radius, float distance_squared)
+Vec3 random_to_sphere(float radius, float distance_squared)
 {
 	float r1 = rand_float();
 	float r2 = rand_float();
@@ -22,28 +23,28 @@ vec3 random_to_sphere(float radius, float distance_squared)
 	float phi = 2 * PI * r1;
 	float x = cos(phi) * sqrt(1 - z * z);
 	float y = sin(phi) * sqrt(1 - z * z);
-	return vec3(x, y, z);
+	return Vec3(x, y, z);
 }
 
-class sphere : public hitable
+class Sphere : public Hitable
 {
 public:
-	sphere() {}
-	sphere(vec3 _center, float _radius, material* mat) : center(_center), radius(_radius), mat_ptr(mat) {}
+	Sphere() {}
+	Sphere(Vec3 _center, float _radius, Material* mat) : center(_center), radius(_radius), mat_ptr(mat) {}
 
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
-	virtual bool bounding_box(float t0, float t1, aabb& box) const override;
-	virtual float pdf_value(const vec3& o, const vec3& v) const;
-	virtual vec3 random(const vec3& o) const;
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const override;
+	virtual bool bounding_box(float t0, float t1, AABB& box) const override;
+	virtual float pdf_value(const Vec3& o, const Vec3& v) const;
+	virtual Vec3 random(const Vec3& o) const;
 
-	vec3 center;
+	Vec3 center;
 	float radius;
-	material* mat_ptr;
+	Material* mat_ptr;
 };
 
-bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool Sphere::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	vec3 oc = r.origin() - center;
+	Vec3 oc = r.origin() - center;
 	float a = dot(r.direction(), r.direction());
 	float b = 2 * dot(r.direction(), oc);
 	float c = dot(oc, oc) - radius * radius;
@@ -76,16 +77,16 @@ bool sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
 	return false;
 }
 
-bool sphere::bounding_box(float t0, float t1, aabb& box) const
+bool Sphere::bounding_box(float t0, float t1, AABB& box) const
 {
-	box = aabb(center - vec3(radius), center + vec3(radius));
+	box = AABB(center - Vec3(radius), center + Vec3(radius));
 	return true;
 }
 
-float sphere::pdf_value(const vec3& o, const vec3& v) const
+float Sphere::pdf_value(const Vec3& o, const Vec3& v) const
 {
-	hit_record rec;
-	if (this->hit(ray(o, v), 0.001f, FLT_MAX, rec))
+	HitRecord rec;
+	if (this->hit(Ray(o, v), 0.001f, FLT_MAX, rec))
 	{
 		float cos_theta_max = sqrt(1 - radius * radius / (center - o).squared_length());
 		float solid_angle = 2 * PI * (1 - cos_theta_max);
@@ -95,38 +96,38 @@ float sphere::pdf_value(const vec3& o, const vec3& v) const
 		return 0;
 }
 
-vec3 sphere::random(const vec3& o) const
+Vec3 Sphere::random(const Vec3& o) const
 {
-	vec3 direction = center - o;
+	Vec3 direction = center - o;
 	float distance_squared = direction.squared_length();
 	onb uvw;
 	uvw.build_from_w(direction);
 	return uvw.local(random_to_sphere(radius, distance_squared));
 }
 
-class moving_sphere : public hitable
+class MovingSphere : public Hitable
 {
 public:
-	moving_sphere() {}
-	moving_sphere(vec3 cen0, vec3 cen1, float t0, float t1, float r, material* m)
+	MovingSphere() {}
+	MovingSphere(Vec3 cen0, Vec3 cen1, float t0, float t1, float r, Material* m)
 		: center0(cen0), center1(cen1), time0(t0), time1(t1), radius(r), mat_ptr(m)
 	{}
 
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const;
-	virtual bool bounding_box(float t0, float t1, aabb& box) const;
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
+	virtual bool bounding_box(float t0, float t1, AABB& box) const;
 
-	vec3 center(float time) const;
+	Vec3 center(float time) const;
 
-	vec3 center0, center1;
+	Vec3 center0, center1;
 	float time0, time1;
 	float radius;
-	material* mat_ptr;
+	Material* mat_ptr;
 };
 
-bool moving_sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool MovingSphere::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	vec3 centerAtTime = center(r.time());
-	vec3 oc = r.origin() - centerAtTime;
+	Vec3 centerAtTime = center(r.time());
+	Vec3 oc = r.origin() - centerAtTime;
 	float a = dot(r.direction(), r.direction());
 	float b = 2 * dot(r.direction(), oc);
 	float c = dot(oc, oc) - radius * radius;
@@ -159,15 +160,15 @@ bool moving_sphere::hit(const ray& r, float t_min, float t_max, hit_record& rec)
 	return false;
 }
 
-bool moving_sphere::bounding_box(float t0, float t1, aabb& box) const
+bool MovingSphere::bounding_box(float t0, float t1, AABB& box) const
 {
-	aabb box0(center(t0) - vec3(radius), center(t0) + vec3(radius));
-	aabb box1(center(t1) - vec3(radius), center(t1) + vec3(radius));
+	AABB box0(center(t0) - Vec3(radius), center(t0) + Vec3(radius));
+	AABB box1(center(t1) - Vec3(radius), center(t1) + Vec3(radius));
 	box = surrounding_box(box0, box1);
 	return true;
 }
 
-vec3 moving_sphere::center(float time) const
+Vec3 MovingSphere::center(float time) const
 {
 	return center0 + ((time - time0) / (time1 - time0)) * (center1 - center0);
 }

@@ -1,7 +1,7 @@
 #ifndef _AABB_H_
 #define _AABB_H_
 
-#include "ray.h"
+#include "Ray.h"
 
 inline float ffmin(float a, float b) { return a < b ? a : b; }
 inline float ffmax(float a, float b) { return a > b ? a : b; }
@@ -12,16 +12,16 @@ inline void ffswap(float& a, float& b)
 	b = b - a;
 }
 
-class aabb
+class AABB
 {
 public:
-	aabb() {}
-	aabb(const vec3& a, const vec3& b) : _min(a), _max(b) {}
+	AABB() {}
+	AABB(const Vec3& a, const Vec3& b) : _min(a), _max(b) {}
 
-	vec3 min() const { return _min; }
-	vec3 max() const { return _max; }
+	Vec3 min() const { return _min; }
+	Vec3 max() const { return _max; }
 
-	bool hit(const ray& r, float tmin, float tmax) const
+	bool hit(const Ray& r, float tmin, float tmax) const
 	{
 		for (int a = 0; a < 3; a++)
 		{
@@ -42,20 +42,10 @@ public:
 		return true;
 	}
 
-	vec3 _min;
-	vec3 _max;
+	Vec3 _min;
+	Vec3 _max;
 };
 
-aabb surrounding_box(aabb box0, aabb box1)
-{
-	vec3 small(ffmin(box0.min().x(), box1.min().x()),
-		ffmin(box0.min().y(), box1.min().y()),
-		ffmin(box0.min().z(), box1.min().z()));
-	vec3 big(ffmax(box0.max().x(), box1.max().x()),
-		ffmax(box0.max().y(), box1.max().y()),
-		ffmax(box0.max().z(), box1.max().z()));
-
-	return aabb(small, big);
-}
+AABB surrounding_box(AABB box0, AABB box1);
 
 #endif

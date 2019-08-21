@@ -1,27 +1,27 @@
 #ifndef _HITABLELIST_H_
 #define  _HITABLELIST_H_
 
-#include "hitable.h"
+#include "Hitable.h"
 #include "rand_helper.h"
 
-class hitable_list : public hitable
+class HitableList : public Hitable
 {
 public:
-	hitable_list() {}
-	hitable_list(hitable **l, int n) { list = l; list_size = n; }
+	HitableList() {}
+	HitableList(Hitable **l, int n) { list = l; list_size = n; }
 
-	virtual bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const override;
-	virtual bool bounding_box(float t0, float t1, aabb& box) const override;
-	virtual float pdf_value(const vec3& o, const vec3& v) const;
-	virtual vec3 random(const vec3& o) const;
+	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const override;
+	virtual bool bounding_box(float t0, float t1, AABB& box) const override;
+	virtual float pdf_value(const Vec3& o, const Vec3& v) const;
+	virtual Vec3 random(const Vec3& o) const;
 
-	hitable** list;
+	Hitable** list;
 	int list_size;
 };
 
-bool hitable_list::hit(const ray& r, float t_min, float t_max, hit_record& rec) const
+bool HitableList::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
-	hit_record temp_rec;
+	HitRecord temp_rec;
 	bool hit_anything = false;
 	float closest = t_max;
 	for (int i = 0; i < list_size; i++)
@@ -36,10 +36,10 @@ bool hitable_list::hit(const ray& r, float t_min, float t_max, hit_record& rec) 
 	return hit_anything;
 }
 
-bool hitable_list::bounding_box(float t0, float t1, aabb& box) const
+bool HitableList::bounding_box(float t0, float t1, AABB& box) const
 {
 	if (list_size < 1) { return false; }
-	aabb temp_box;
+	AABB temp_box;
 	bool first_true = list[0]->bounding_box(t0, t1, temp_box);
 	if (!first_true)
 		return false;
@@ -58,7 +58,7 @@ bool hitable_list::bounding_box(float t0, float t1, aabb& box) const
 	return true;
 }
 
-float hitable_list::pdf_value(const vec3& o, const vec3& v) const
+float HitableList::pdf_value(const Vec3& o, const Vec3& v) const
 {
 	float weight = 1.0f / list_size;
 	float sum = 0;
@@ -69,7 +69,7 @@ float hitable_list::pdf_value(const vec3& o, const vec3& v) const
 	return sum;
 }
 
-vec3 hitable_list::random(const vec3& o) const
+Vec3 HitableList::random(const Vec3& o) const
 {
 	int index = int(rand_float() * list_size);
 	if (index == list_size) index = list_size - 1;

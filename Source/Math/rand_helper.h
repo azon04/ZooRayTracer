@@ -8,10 +8,6 @@ extern "C"
 	double drand48();
 }
 
-float rand_float()
-{
-	return drand48();
-}
-
+float rand_float();
 
 #endif
