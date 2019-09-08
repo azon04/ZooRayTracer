@@ -16,6 +16,9 @@ public:
 		_box = AABB(pmin, pmax);
 		return true;
 	}
+	
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Vec3 pmin, pmax;
 	Hitable *list_ptr;
 };
@@ -38,6 +41,26 @@ Box::Box(const Vec3& p0, const Vec3& p1, Material *ptr)
 bool Box::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 {
 	return list_ptr->hit(r, t_min, t_max, rec);
+}
+
+void Box::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "Box", document->GetAllocator());
+
+	{
+		rapidjson::Value value;
+		Vec3ToJSON(pmin, value, document);
+		jsonObject.AddMember("Min", value, document->GetAllocator());
+	}
+
+	{
+		rapidjson::Value value;
+		Vec3ToJSON(pmax, value, document);
+		jsonObject.AddMember("Max", value, document->GetAllocator());
+	}
 }
 
 #endif

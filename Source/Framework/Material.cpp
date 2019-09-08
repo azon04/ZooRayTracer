@@ -49,5 +49,76 @@ bool Dielectric::scatter(const Ray& r_in, const HitRecord& rec, ScatterRecord& s
 		srec.specular_ray = Ray(rec.p, refracted, r_in.time());
 	}
 
-	return true;
+	return true;	
+}
+
+void Dielectric::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Material::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+
+	jsonObject.AddMember("Class", "Dielectric", document->GetAllocator());
+	jsonObject.AddMember("RefIndex", ref_idx, document->GetAllocator());
+}
+
+void Material::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	jsonValue->SetObject();
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Type", "Material", document->GetAllocator());
+}
+
+void Lambertian::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Material::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "Lambertian", document->GetAllocator());
+
+	rapidjson::Value textureValue;
+	if (albedo)
+	{
+		albedo->writeToJSON(&textureValue, document);
+	}
+	jsonObject.AddMember("Albedo", textureValue, document->GetAllocator());
+
+	// Write the PDF to json
+	if (pdf)
+	{
+		rapidjson::Value pdfValue;
+		pdf->writeToJSON(&pdfValue, document);
+		jsonObject.AddMember("PDF", pdfValue, document->GetAllocator());
+	}
+}
+
+void Metal::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+
+	Material::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+
+	jsonObject.AddMember("Class", "Metal", document->GetAllocator());
+	jsonObject.AddMember("Fuzziness", fuzz, document->GetAllocator());
+	
+	rapidjson::Value albedoValue;
+	Vec3ToJSON(albedo, albedoValue, document);
+	jsonObject.AddMember("Albedo", albedoValue, document->GetAllocator());
+}
+
+void DiffuseLight::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Material::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+
+	jsonObject.AddMember("Class", "DiffuseLight", document->GetAllocator());
+
+	if(emit)
+	{
+		rapidjson::Value emitTextureValue;
+		emit->writeToJSON(&emitTextureValue, document);
+		jsonObject.AddMember("EmitterTexture", emitTextureValue, document->GetAllocator());
+	}
 }

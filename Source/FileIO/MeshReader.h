@@ -31,7 +31,7 @@ Mesh* MeshReader::parse(const char* filename, float scale)
 	}
 
 	_result = processNode(scene->mRootNode, scene, scale);
-
+	if (_result) { _result->setAssetPath(filename); }
 	return _result;
 }
 

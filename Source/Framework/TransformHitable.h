@@ -22,8 +22,25 @@ public:
 	{
 		return ptr->bounding_box(t0, t1, box);
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Hitable *ptr;
 };
+
+void FlipNormals::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "FlipNormals", document->GetAllocator());
+	if (ptr)
+	{
+		rapidjson::Value hitableValue;
+		ptr->writeToJSON(&hitableValue, document);
+		jsonObject.AddMember("Hitable", hitableValue, document->GetAllocator());
+	}
+}
 
 class TranslateHitable : public Hitable
 {
@@ -31,6 +48,8 @@ public:
 	TranslateHitable(Hitable* p, const Vec3& displacement) : ptr(p), offset(displacement) {}
 	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
 	virtual bool bounding_box(float t0, float t1, AABB& box) const;
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 
 	Hitable *ptr;
 	Vec3 offset;
@@ -63,6 +82,27 @@ bool TranslateHitable::bounding_box(float t0, float t1, AABB& box) const
 	}
 }
 
+void TranslateHitable::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "TranslateHitable", document->GetAllocator());
+
+	if (ptr)
+	{
+		rapidjson::Value hitableValue;
+		ptr->writeToJSON(&hitableValue, document);
+		jsonObject.AddMember("Hitable", hitableValue, document->GetAllocator());
+	}
+
+	{
+		rapidjson::Value offsetValue;
+		Vec3ToJSON(offset, offsetValue, document);
+		jsonObject.AddMember("Offset", offsetValue, document->GetAllocator());
+	}
+}
+
 class RotateY : public Hitable
 {
 public:
@@ -73,15 +113,22 @@ public:
 		box = bbox;
 		return hasBox;
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Hitable* ptr;
 	float sin_theta;
 	float cos_theta;
 	bool hasBox;
 	AABB bbox;
+
+	// Cached angle value
+	float angle;
 };
 
 RotateY::RotateY(Hitable* p, float angle)
 {
+	this->angle = angle;
 	float radians = (PI / 180.0f) * angle;
 	sin_theta = sin(radians);
 	cos_theta = cos(radians);
@@ -140,6 +187,23 @@ bool RotateY::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 	{
 		return false;
 	}
+}
+
+void RotateY::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "RotateY", document->GetAllocator());
+	jsonObject.AddMember("Angle", angle, document->GetAllocator());
+
+	if (ptr)
+	{
+		rapidjson::Value hitableValue;
+		ptr->writeToJSON(&hitableValue, document);
+		jsonObject.AddMember("Hitable", hitableValue, document->GetAllocator());
+	}
+
 }
 
 #endif

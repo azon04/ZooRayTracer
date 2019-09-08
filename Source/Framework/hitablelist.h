@@ -14,6 +14,7 @@ public:
 	virtual bool bounding_box(float t0, float t1, AABB& box) const override;
 	virtual float pdf_value(const Vec3& o, const Vec3& v) const;
 	virtual Vec3 random(const Vec3& o) const;
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 
 	Hitable** list;
 	int list_size;
@@ -74,6 +75,25 @@ Vec3 HitableList::random(const Vec3& o) const
 	int index = int(rand_float() * list_size);
 	if (index == list_size) index = list_size - 1;
 	return list[index]->random(o);
+}
+
+void HitableList::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "HitableList", document->GetAllocator());
+	jsonObject.AddMember("ListSize", list_size, document->GetAllocator());
+	
+	rapidjson::Value listArrayValue;
+	listArrayValue.SetArray();
+	for (int i = 0; i < list_size; i++)
+	{
+		rapidjson::Value value;
+		list[i]->writeToJSON(&value, document);
+		listArrayValue.GetArray().PushBack(value, document->GetAllocator());
+	}
+
+	jsonObject.AddMember("List", listArrayValue, document->GetAllocator());
 }
 
 #endif

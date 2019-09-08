@@ -2,8 +2,10 @@
 #define _SPHERE_H_
 
 #include "Hitable.h"
+#include "Material.h"
 #include "math.h"
 #include "math_utils.h"
+#include "Framework/JSONHelper.h"
 
 class Material;
 
@@ -36,6 +38,8 @@ public:
 	virtual bool bounding_box(float t0, float t1, AABB& box) const override;
 	virtual float pdf_value(const Vec3& o, const Vec3& v) const;
 	virtual Vec3 random(const Vec3& o) const;
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 
 	Vec3 center;
 	float radius;
@@ -105,6 +109,25 @@ Vec3 Sphere::random(const Vec3& o) const
 	return uvw.local(random_to_sphere(radius, distance_squared));
 }
 
+void Sphere::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "Sphere", document->GetAllocator());
+	jsonObject.AddMember("Radius", radius, document->GetAllocator());
+	
+	rapidjson::Value centerValue;
+	Vec3ToJSON(center, centerValue, document);
+	jsonObject.AddMember("Center", centerValue, document->GetAllocator());
+
+	rapidjson::Value materialValue;
+	if (mat_ptr)
+	{
+		mat_ptr->writeToJSON(&materialValue, document);
+	}
+	jsonObject.AddMember("Material", materialValue, document->GetAllocator());
+}
+
 class MovingSphere : public Hitable
 {
 public:
@@ -115,6 +138,7 @@ public:
 
 	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const;
 	virtual bool bounding_box(float t0, float t1, AABB& box) const;
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 
 	Vec3 center(float time) const;
 
@@ -166,6 +190,37 @@ bool MovingSphere::bounding_box(float t0, float t1, AABB& box) const
 	AABB box1(center(t1) - Vec3(radius), center(t1) + Vec3(radius));
 	box = surrounding_box(box0, box1);
 	return true;
+}
+
+void MovingSphere::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "MovingSphere", document->GetAllocator());
+	jsonObject.AddMember("Radius", radius, document->GetAllocator());
+	
+	jsonObject.AddMember("Time0", time0, document->GetAllocator());
+	jsonObject.AddMember("Time1", time1, document->GetAllocator());
+	
+	{
+		rapidjson::Value centerValue;
+		Vec3ToJSON(center0, centerValue, document);
+		jsonObject.AddMember("Center0", centerValue, document->GetAllocator());
+	}
+
+
+	{
+		rapidjson::Value centerValue;
+		Vec3ToJSON(center1, centerValue, document);
+		jsonObject.AddMember("Center1", centerValue, document->GetAllocator());
+	}
+
+	rapidjson::Value materialValue;
+	if (mat_ptr)
+	{
+		mat_ptr->writeToJSON(&materialValue, document);
+	}
+	jsonObject.AddMember("Material", materialValue, document->GetAllocator());
 }
 
 Vec3 MovingSphere::center(float time) const

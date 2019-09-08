@@ -13,10 +13,17 @@ public:
 	BVHNode(Hitable **l, int n, float time0, float time1);
 	virtual bool hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const override;
 	virtual bool bounding_box(float t0, float t1, AABB& box) const override;
+	
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 
 	Hitable *left;
 	Hitable *right;
 	AABB box;
+
+	Hitable** list;
+	int listSize;
+	float time0;
+	float time1;
 };
 
 int box_x_compare(const void* a, const void* b)
@@ -81,6 +88,11 @@ int box_z_compare(const void* a, const void* b)
 
 BVHNode::BVHNode(Hitable **l, int n, float time0, float time1)
 {
+	list = l;
+	listSize = n;
+	this->time0 = time0;
+	this->time1 = time1;
+
 	int axis = int(rand_float() * 3);
 	if (axis == 0)
 	{
@@ -161,6 +173,53 @@ bool BVHNode::bounding_box(float t0, float t1, AABB& b) const
 {
 	b = box;
 	return true;
+}
+
+void BVHNode::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "BVHNode", document->GetAllocator());
+	jsonObject.AddMember("Time0", time0, document->GetAllocator());
+	jsonObject.AddMember("Time1", time1, document->GetAllocator());
+	jsonObject.AddMember("ListSize", listSize, document->GetAllocator());
+
+	rapidjson::Value listArrayValue;
+	listArrayValue.SetArray();
+	for (int i = 0; i < listSize; i++)
+	{
+		rapidjson::Value value;
+		list[i]->writeToJSON(&value, document);
+		listArrayValue.GetArray().PushBack(value, document->GetAllocator());
+	}
+
+	jsonObject.AddMember("List", listArrayValue, document->GetAllocator());
+
+	/*
+	//Hitable *left;
+	if (left)
+	{
+		rapidjson::Value leftValue;
+		left->writeToJSON(&leftValue, document);
+		jsonObject.AddMember("Left", leftValue, document->GetAllocator());
+	}
+
+	//Hitable *right;
+	if (right)
+	{
+		rapidjson::Value rightValue;
+		right->writeToJSON(&rightValue, document);
+		jsonObject.AddMember("Right", rightValue, document->GetAllocator());
+	}
+
+	//AABB box;
+	{
+		rapidjson::Value aabbValue;
+		AABBToJSON(box, aabbValue, document);
+		jsonObject.AddMember("AABBBox", aabbValue, document->GetAllocator());
+	}
+	*/
 }
 
 #endif

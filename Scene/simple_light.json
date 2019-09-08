@@ -1,0 +1,135 @@
+{
+    "Version": "1.0",
+    "World": {
+        "Type": "Hitable",
+        "Class": "HitableList",
+        "ListSize": 4,
+        "List": [
+            {
+                "Type": "Hitable",
+                "Class": "Sphere",
+                "Radius": 1000.0,
+                "Center": {
+                    "X": 0.0,
+                    "Y": -1000.0,
+                    "Z": 0.0
+                },
+                "Material": {
+                    "Type": "Material",
+                    "Class": "Lambertian",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "NoiseTexture",
+                        "NoiseScale": 4.0
+                    },
+                    "PDF": {
+                        "Type": "PDF",
+                        "Class": "CosinePDF",
+                        "UVW": {
+                            "U": {
+                                "X": -0.8164965510368347,
+                                "Y": 0.40824827551841738,
+                                "Z": 0.40824827551841738
+                            },
+                            "V": {
+                                "X": 0.0,
+                                "Y": -0.7071067690849304,
+                                "Z": 0.7071067690849304
+                            },
+                            "W": {
+                                "X": -0.5773502588272095,
+                                "Y": -0.5773502588272095,
+                                "Z": -0.5773502588272095
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "Sphere",
+                "Radius": 2.0,
+                "Center": {
+                    "X": 0.0,
+                    "Y": 2.0,
+                    "Z": 0.0
+                },
+                "Material": {
+                    "Type": "Material",
+                    "Class": "Lambertian",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "NoiseTexture",
+                        "NoiseScale": 4.0
+                    },
+                    "PDF": {
+                        "Type": "PDF",
+                        "Class": "CosinePDF",
+                        "UVW": {
+                            "U": {
+                                "X": -0.8164965510368347,
+                                "Y": 0.40824827551841738,
+                                "Z": 0.40824827551841738
+                            },
+                            "V": {
+                                "X": 0.0,
+                                "Y": -0.7071067690849304,
+                                "Z": 0.7071067690849304
+                            },
+                            "W": {
+                                "X": -0.5773502588272095,
+                                "Y": -0.5773502588272095,
+                                "Z": -0.5773502588272095
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "Sphere",
+                "Radius": 2.0,
+                "Center": {
+                    "X": 0.0,
+                    "Y": 7.0,
+                    "Z": 0.0
+                },
+                "Material": {
+                    "Type": "Material",
+                    "Class": "DiffuseLight",
+                    "EmitterTexture": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 4.0,
+                            "Y": 4.0,
+                            "Z": 4.0
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "XYRect",
+                "X0": 3.0,
+                "X1": 5.0,
+                "Y0": 1.0,
+                "Y1": 3.0,
+                "K": -2.0,
+                "Material": {
+                    "Type": "Material",
+                    "Class": "DiffuseLight",
+                    "EmitterTexture": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 4.0,
+                            "Y": 4.0,
+                            "Z": 4.0
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

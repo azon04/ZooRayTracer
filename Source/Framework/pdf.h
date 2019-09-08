@@ -3,12 +3,21 @@
 
 #include "math_utils.h"
 #include "Hitable.h"
+#include "JSONParseable.h"
+#include "JSONHelper.h"
 
-class PDF 
+class PDF : public JSONParseable
 {
 public:
 	virtual float value(const Vec3& direction) const = 0;
 	virtual Vec3 generate() const = 0;
+	
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		jsonValue->SetObject();
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Type", "PDF", document->GetAllocator());
+	}
 };
 
 class cosine_pdf : public PDF
@@ -30,6 +39,17 @@ public:
 		return uvw.local(random_cosine_direction());
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		PDF::writeToJSON(jsonValue, document);
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "CosinePDF", document->GetAllocator());
+		
+		rapidjson::Value uvwValue;
+		ONBToJSON(uvw, uvwValue, document);
+		jsonObject.AddMember("UVW", uvwValue, document->GetAllocator());
+	}
+
 	onb uvw;
 };
 
@@ -45,6 +65,24 @@ public:
 	virtual Vec3 generate() const
 	{
 		return ptr->random(o);
+	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		PDF::writeToJSON(jsonValue, document);
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "HitablePDF", document->GetAllocator());
+
+		rapidjson::Value offsetValue;
+		Vec3ToJSON(o, offsetValue, document);
+		jsonObject.AddMember("UVW", offsetValue, document->GetAllocator());
+
+		if (ptr)
+		{
+			rapidjson::Value hitableValue;
+			ptr->writeToJSON(&hitableValue, document);
+			jsonObject.AddMember("Hitable", hitableValue, document->GetAllocator());
+		}
 	}
 
 	Vec3 o;
@@ -70,6 +108,28 @@ public:
 			return p[1]->generate();
 		}
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		PDF::writeToJSON(jsonValue, document);
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "MixturePDF", document->GetAllocator());
+
+		if (p[0])
+		{
+			rapidjson::Value pdfValue;
+			p[0]->writeToJSON(&pdfValue, document);
+			jsonObject.AddMember("PDF0", pdfValue, document->GetAllocator());
+		}
+
+		if (p[1])
+		{
+			rapidjson::Value pdfValue;
+			p[1]->writeToJSON(&pdfValue, document);
+			jsonObject.AddMember("PDF1", pdfValue, document->GetAllocator());
+		}
+	}
+
 	PDF* p[2];
 };
 #endif

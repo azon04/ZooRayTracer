@@ -3,11 +3,21 @@
 
 #include "Vec3.h"
 #include "Perlin.h"
+#include "JSONParseable.h"
+#include "JSONHelper.h"
+#include <sstream>
 
-class Texture
+class Texture : public JSONParseable
 {
 public:
 	virtual Vec3 value(float u, float v, const Vec3& p) const = 0;
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		jsonValue->SetObject();
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Type", "Texture", document->GetAllocator());
+	}
 };
 
 class ConstantColorTexture : public Texture
@@ -19,6 +29,18 @@ public:
 	virtual Vec3 value(float u, float v, const Vec3& p) const
 	{
 		return color;
+	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Texture::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "ConstantColorTexture", document->GetAllocator());
+
+		rapidjson::Value colorValue;
+		Vec3ToJSON(color, colorValue, document);
+		jsonObject.AddMember("Color", colorValue, document->GetAllocator());
 	}
 
 	Vec3 color;
@@ -43,6 +65,28 @@ public:
 		}
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Texture::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "CheckerTexture", document->GetAllocator());
+
+		if (odd)
+		{
+			rapidjson::Value oddValue;
+			odd->writeToJSON(&oddValue, document);
+			jsonObject.AddMember("OddTexture", oddValue, document->GetAllocator());
+		}
+
+		if (even)
+		{
+			rapidjson::Value evenValue;
+			even->writeToJSON(&evenValue, document);
+			jsonObject.AddMember("EvenTexture", evenValue, document->GetAllocator());
+		}
+	}
+
 	Texture* odd;
 	Texture* even;
 };
@@ -58,6 +102,17 @@ public:
 		//return vec3(1.0f) * noise.turb(scale * p);
 		return Vec3(1.0f) * 0.5f * (1 + sin(scale * p.z() + 10 * noise.turb(p)));
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Texture::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "NoiseTexture", document->GetAllocator());
+		jsonObject.AddMember("NoiseScale", scale, document->GetAllocator());
+		
+	}
+
 	Perlin noise;
 	float scale;
 };
@@ -66,7 +121,12 @@ class ImageTexture : public Texture
 {
 public:
 	ImageTexture() {}
-	ImageTexture(unsigned char* pixel, int width, int height) : data(pixel), nx(width), ny(height) {}
+	ImageTexture(unsigned char* pixel, int width, int height, const char* imagePath) : data(pixel), nx(width), ny(height) 
+	{
+		std::stringstream stringStream;
+		stringStream << imagePath;
+		stringStream >> this->imagePath;
+	}
 
 	virtual Vec3 value(float u, float v, const Vec3& p) const
 	{
@@ -84,7 +144,19 @@ public:
 		return Vec3(r, g, b);
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Texture::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "ImageTexture", document->GetAllocator());
+		jsonObject.AddMember("ImagePath", rapidjson::StringRef(imagePath), document->GetAllocator());
+		jsonObject.AddMember("Width", nx, document->GetAllocator());
+		jsonObject.AddMember("Height", ny, document->GetAllocator());
+	}
+
 	unsigned char* data;
+	char imagePath[50];
 	int nx, ny;
 };
 

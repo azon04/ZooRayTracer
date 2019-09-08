@@ -1,0 +1,351 @@
+{
+    "Version": "1.0",
+    "World": {
+        "Type": "Hitable",
+        "Class": "HitableList",
+        "ListSize": 8,
+        "List": [
+            {
+                "Type": "Hitable",
+                "Class": "FlipNormals",
+                "Hitable": {
+                    "Type": "Hitable",
+                    "Class": "YZRect",
+                    "Y0": 0.0,
+                    "Y1": 555.0,
+                    "Z0": 0.0,
+                    "Z1": 555.0,
+                    "K": 555.0,
+                    "Material": {
+                        "Type": "Material",
+                        "Class": "Lambertian",
+                        "Albedo": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.11999999731779099,
+                                "Y": 0.44999998807907107,
+                                "Z": 0.15000000596046449
+                            }
+                        },
+                        "PDF": {
+                            "Type": "PDF",
+                            "Class": "CosinePDF",
+                            "UVW": {
+                                "U": {
+                                    "X": -0.8164965510368347,
+                                    "Y": 0.40824827551841738,
+                                    "Z": 0.40824827551841738
+                                },
+                                "V": {
+                                    "X": 0.0,
+                                    "Y": -0.7071067690849304,
+                                    "Z": 0.7071067690849304
+                                },
+                                "W": {
+                                    "X": -0.5773502588272095,
+                                    "Y": -0.5773502588272095,
+                                    "Z": -0.5773502588272095
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "YZRect",
+                "Y0": 0.0,
+                "Y1": 555.0,
+                "Z0": 0.0,
+                "Z1": 555.0,
+                "K": 0.0,
+                "Material": {
+                    "Type": "Material",
+                    "Class": "Lambertian",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 0.6499999761581421,
+                            "Y": 0.05000000074505806,
+                            "Z": 0.05000000074505806
+                        }
+                    },
+                    "PDF": {
+                        "Type": "PDF",
+                        "Class": "CosinePDF",
+                        "UVW": {
+                            "U": {
+                                "X": -0.8164965510368347,
+                                "Y": 0.40824827551841738,
+                                "Z": 0.40824827551841738
+                            },
+                            "V": {
+                                "X": 0.0,
+                                "Y": -0.7071067690849304,
+                                "Z": 0.7071067690849304
+                            },
+                            "W": {
+                                "X": -0.5773502588272095,
+                                "Y": -0.5773502588272095,
+                                "Z": -0.5773502588272095
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "XZRect",
+                "X0": 113.0,
+                "X1": 443.0,
+                "Z0": 127.0,
+                "Z1": 432.0,
+                "K": 554.0,
+                "Material": {
+                    "Type": "Material",
+                    "Class": "DiffuseLight",
+                    "EmitterTexture": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 7.0,
+                            "Y": 7.0,
+                            "Z": 7.0
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "XZRect",
+                "X0": 0.0,
+                "X1": 555.0,
+                "Z0": 0.0,
+                "Z1": 555.0,
+                "K": 0.0,
+                "Material": {
+                    "Type": "Material",
+                    "Class": "Lambertian",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 0.7300000190734863,
+                            "Y": 0.7300000190734863,
+                            "Z": 0.7300000190734863
+                        }
+                    },
+                    "PDF": {
+                        "Type": "PDF",
+                        "Class": "CosinePDF",
+                        "UVW": {
+                            "U": {
+                                "X": -0.8164965510368347,
+                                "Y": 0.40824827551841738,
+                                "Z": 0.40824827551841738
+                            },
+                            "V": {
+                                "X": 0.0,
+                                "Y": -0.7071067690849304,
+                                "Z": 0.7071067690849304
+                            },
+                            "W": {
+                                "X": -0.5773502588272095,
+                                "Y": -0.5773502588272095,
+                                "Z": -0.5773502588272095
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "FlipNormals",
+                "Hitable": {
+                    "Type": "Hitable",
+                    "Class": "XZRect",
+                    "X0": 0.0,
+                    "X1": 555.0,
+                    "Z0": 0.0,
+                    "Z1": 555.0,
+                    "K": 555.0,
+                    "Material": {
+                        "Type": "Material",
+                        "Class": "Lambertian",
+                        "Albedo": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.7300000190734863,
+                                "Y": 0.7300000190734863,
+                                "Z": 0.7300000190734863
+                            }
+                        },
+                        "PDF": {
+                            "Type": "PDF",
+                            "Class": "CosinePDF",
+                            "UVW": {
+                                "U": {
+                                    "X": -0.8164965510368347,
+                                    "Y": 0.40824827551841738,
+                                    "Z": 0.40824827551841738
+                                },
+                                "V": {
+                                    "X": 0.0,
+                                    "Y": -0.7071067690849304,
+                                    "Z": 0.7071067690849304
+                                },
+                                "W": {
+                                    "X": -0.5773502588272095,
+                                    "Y": -0.5773502588272095,
+                                    "Z": -0.5773502588272095
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "FlipNormals",
+                "Hitable": {
+                    "Type": "Hitable",
+                    "Class": "XYRect",
+                    "X0": 0.0,
+                    "X1": 555.0,
+                    "Y0": 0.0,
+                    "Y1": 555.0,
+                    "K": 555.0,
+                    "Material": {
+                        "Type": "Material",
+                        "Class": "Lambertian",
+                        "Albedo": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.7300000190734863,
+                                "Y": 0.7300000190734863,
+                                "Z": 0.7300000190734863
+                            }
+                        },
+                        "PDF": {
+                            "Type": "PDF",
+                            "Class": "CosinePDF",
+                            "UVW": {
+                                "U": {
+                                    "X": -0.8164965510368347,
+                                    "Y": 0.40824827551841738,
+                                    "Z": 0.40824827551841738
+                                },
+                                "V": {
+                                    "X": 0.0,
+                                    "Y": -0.7071067690849304,
+                                    "Z": 0.7071067690849304
+                                },
+                                "W": {
+                                    "X": -0.5773502588272095,
+                                    "Y": -0.5773502588272095,
+                                    "Z": -0.5773502588272095
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "ConstantMedium",
+                "Density": 0.009999999776482582,
+                "Boundary": {
+                    "Type": "Hitable",
+                    "Class": "TranslateHitable",
+                    "Hitable": {
+                        "Type": "Hitable",
+                        "Class": "RotateY",
+                        "Angle": -18.0,
+                        "Hitable": {
+                            "Type": "Hitable",
+                            "Class": "Box",
+                            "Min": {
+                                "X": 0.0,
+                                "Y": 0.0,
+                                "Z": 0.0
+                            },
+                            "Max": {
+                                "X": 165.0,
+                                "Y": 165.0,
+                                "Z": 165.0
+                            }
+                        }
+                    },
+                    "Offset": {
+                        "X": 130.0,
+                        "Y": 0.0,
+                        "Z": 65.0
+                    }
+                },
+                "PhaseFunction": {
+                    "Type": "Material",
+                    "Class": "Isotropic",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 1.0,
+                            "Y": 1.0,
+                            "Z": 1.0
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "ConstantMedium",
+                "Density": 0.009999999776482582,
+                "Boundary": {
+                    "Type": "Hitable",
+                    "Class": "TranslateHitable",
+                    "Hitable": {
+                        "Type": "Hitable",
+                        "Class": "RotateY",
+                        "Angle": 15.0,
+                        "Hitable": {
+                            "Type": "Hitable",
+                            "Class": "Box",
+                            "Min": {
+                                "X": 0.0,
+                                "Y": 0.0,
+                                "Z": 0.0
+                            },
+                            "Max": {
+                                "X": 165.0,
+                                "Y": 330.0,
+                                "Z": 165.0
+                            }
+                        }
+                    },
+                    "Offset": {
+                        "X": 265.0,
+                        "Y": 0.0,
+                        "Z": 295.0
+                    }
+                },
+                "PhaseFunction": {
+                    "Type": "Material",
+                    "Class": "Isotropic",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "ConstantColorTexture",
+                        "Color": {
+                            "X": 0.0,
+                            "Y": 0.0,
+                            "Z": 0.0
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

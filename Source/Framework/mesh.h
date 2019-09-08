@@ -53,6 +53,39 @@ public:
 		return true;
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Hitable::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "Triangle", document->GetAllocator());
+		
+		if (mat)
+		{
+			rapidjson::Value matValue;
+			mat->writeToJSON(&matValue, document);
+			jsonObject.AddMember("Material", matValue, document->GetAllocator());
+		}
+
+		{
+			rapidjson::Value value;
+			Vec3ToJSON(points[0], value, document);
+			jsonObject.AddMember("Point0", value, document->GetAllocator());
+		}
+
+		{
+			rapidjson::Value value;
+			Vec3ToJSON(points[1], value, document);
+			jsonObject.AddMember("Point1", value, document->GetAllocator());
+		}
+
+		{
+			rapidjson::Value value;
+			Vec3ToJSON(points[2], value, document);
+			jsonObject.AddMember("Point2", value, document->GetAllocator());
+		}
+	}
+
 	Material* mat;
 	Vec3 points[3];
 };
@@ -109,6 +142,13 @@ public:
 	}
 	~Mesh() {}
 
+	void setAssetPath(const char* assetPath)
+	{
+		std::stringstream stringStream;
+		stringStream << assetPath;
+		stringStream >> this->assetPath;
+	}
+
 	void addTriangle(Triangle* newTriangle)
 	{
 		triangles[triangle_count++] = newTriangle;
@@ -134,6 +174,23 @@ public:
 		return triangle_bvh->bounding_box(t0, t1, box);
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Hitable::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+		jsonObject.AddMember("Class", "Mesh", document->GetAllocator());
+		jsonObject.AddMember("MeshPath", rapidjson::StringRef(assetPath), document->GetAllocator());
+
+		if (mat)
+		{
+			rapidjson::Value matValue;
+			mat->writeToJSON(&matValue, document);
+			jsonObject.AddMember("Material", matValue, document->GetAllocator());
+		}
+	}
+
+	char assetPath[50];
 	BVHNode* triangle_bvh;
 	Triangle** triangles;
 	Material* mat;

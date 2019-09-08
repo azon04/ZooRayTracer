@@ -1,0 +1,45 @@
+{
+    "Version": "1.0",
+    "World": {
+        "Type": "Hitable",
+        "Class": "Sphere",
+        "Radius": 2.0,
+        "Center": {
+            "X": 0.0,
+            "Y": 0.0,
+            "Z": 0.0
+        },
+        "Material": {
+            "Type": "Material",
+            "Class": "Lambertian",
+            "Albedo": {
+                "Type": "Texture",
+                "Class": "ImageTexture",
+                "ImagePath": "Resources/earthmap.jpg",
+                "Width": 1920,
+                "Height": 1024
+            },
+            "PDF": {
+                "Type": "PDF",
+                "Class": "CosinePDF",
+                "UVW": {
+                    "U": {
+                        "X": -0.8164965510368347,
+                        "Y": 0.40824827551841738,
+                        "Z": 0.40824827551841738
+                    },
+                    "V": {
+                        "X": 0.0,
+                        "Y": -0.7071067690849304,
+                        "Z": 0.7071067690849304
+                    },
+                    "W": {
+                        "X": -0.5773502588272095,
+                        "Y": -0.5773502588272095,
+                        "Z": -0.5773502588272095
+                    }
+                }
+            }
+        }
+    }
+}

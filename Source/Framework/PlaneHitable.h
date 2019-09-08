@@ -15,6 +15,9 @@ public:
 		box = AABB(Vec3(x0, y0, k - 0.00001f), Vec3(x1, y1, k + 0.00001f));
 		return true;
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Material* mat;
 	float x0, x1, y0, y1, k;
 };
@@ -35,6 +38,26 @@ bool XYRect::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 	rec.mat_ptr = mat;
 	rec.normal = Vec3(0.0f, 0.0f, 1.0f);
 	return true;
+}
+
+void XYRect::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+	
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "XYRect", document->GetAllocator());
+	jsonObject.AddMember("X0", x0, document->GetAllocator());
+	jsonObject.AddMember("X1", x1, document->GetAllocator());
+	jsonObject.AddMember("Y0", y0, document->GetAllocator());
+	jsonObject.AddMember("Y1", y1, document->GetAllocator());
+	jsonObject.AddMember("K", k, document->GetAllocator());
+
+	if (mat)
+	{
+		rapidjson::Value matValue;
+		mat->writeToJSON(&matValue, document);
+		jsonObject.AddMember("Material", matValue, document->GetAllocator());
+	}
 }
 
 class XZRect : public Hitable
@@ -68,6 +91,8 @@ public:
 		return random_point - o;
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Material* mat;
 	float x0, x1, z0, z1, k;
 };
@@ -90,6 +115,26 @@ bool XZRect::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 	return true;
 }
 
+void XZRect::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "XZRect", document->GetAllocator());
+	jsonObject.AddMember("X0", x0, document->GetAllocator());
+	jsonObject.AddMember("X1", x1, document->GetAllocator());
+	jsonObject.AddMember("Z0", z0, document->GetAllocator());
+	jsonObject.AddMember("Z1", z1, document->GetAllocator());
+	jsonObject.AddMember("K", k, document->GetAllocator());
+
+	if (mat)
+	{
+		rapidjson::Value matValue;
+		mat->writeToJSON(&matValue, document);
+		jsonObject.AddMember("Material", matValue, document->GetAllocator());
+	}
+}
+
 class YZRect : public Hitable
 {
 public:
@@ -101,6 +146,9 @@ public:
 		box = AABB(Vec3(k - 0.00001f, y0, z0), Vec3(k + 0.00001f, y1, z1));
 		return true;
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Material* mat;
 	float y0, y1, z0, z1, k;
 };
@@ -121,6 +169,26 @@ bool YZRect::hit(const Ray& r, float t_min, float t_max, HitRecord& rec) const
 	rec.mat_ptr = mat;
 	rec.normal = Vec3(1.0f, 0.0f, 0.0f);
 	return true;
+}
+
+void YZRect::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+{
+	Hitable::writeToJSON(jsonValue, document);
+
+	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+	jsonObject.AddMember("Class", "YZRect", document->GetAllocator());
+	jsonObject.AddMember("Y0", y0, document->GetAllocator());
+	jsonObject.AddMember("Y1", y1, document->GetAllocator());
+	jsonObject.AddMember("Z0", z0, document->GetAllocator());
+	jsonObject.AddMember("Z1", z1, document->GetAllocator());
+	jsonObject.AddMember("K", k, document->GetAllocator());
+
+	if (mat)
+	{
+		rapidjson::Value matValue;
+		mat->writeToJSON(&matValue, document);
+		jsonObject.AddMember("Material", matValue, document->GetAllocator());
+	}
 }
 
 #endif

@@ -14,6 +14,23 @@ public:
 		attenuation = albedo->value(rec.u, rec.v, rec.p);
 		return true;
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Material::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+
+		jsonObject.AddMember("Class", "Isotropic", document->GetAllocator());
+
+		rapidjson::Value textureValue;
+		if (albedo)
+		{
+			albedo->writeToJSON(&textureValue, document);
+		}
+		jsonObject.AddMember("Albedo", textureValue, document->GetAllocator());
+	}
+
 	Texture* albedo;
 };
 
@@ -29,6 +46,31 @@ public:
 	{
 		return boundary->bounding_box(t0, t1, box);
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
+	{
+		Hitable::writeToJSON(jsonValue, document);
+
+		rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
+
+		jsonObject.AddMember("Class", "ConstantMedium", document->GetAllocator());
+		jsonObject.AddMember("Density", density, document->GetAllocator());
+
+		if (boundary)
+		{
+			rapidjson::Value boundaryValue;
+			boundary->writeToJSON(&boundaryValue, document);
+			jsonObject.AddMember("Boundary", boundaryValue, document->GetAllocator());
+		}
+
+		if (phase_function)
+		{
+			rapidjson::Value phaseFunctionValue;
+			phase_function->writeToJSON(&phaseFunctionValue, document);
+			jsonObject.AddMember("PhaseFunction", phaseFunctionValue, document->GetAllocator());
+		}
+	}
+
 	Hitable* boundary;
 	float density;
 	Material *phase_function;

@@ -10,7 +10,7 @@ newaction {
 }
 
 workspace "ZooRayTracer"
-    location ("Projects/" .. _ACTION)
+    location ("./")
     configurations { "Debug", "Release" }
 
 project "ZooRayTracer"
@@ -24,7 +24,8 @@ project "ZooRayTracer"
         "Source/Framework",
         "Source/Math",
         "Source/Lib/Include",
-        "3rdParty/Build/assimp/include"
+        "3rdParty/Build/assimp/include",
+        "3rdParty/RapidJSON/include"
     }
 
     files { "Source/**.h", 

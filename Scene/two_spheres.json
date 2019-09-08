@@ -1,0 +1,124 @@
+{
+    "Version": "1.0",
+    "World": {
+        "Type": "Hitable",
+        "Class": "HitableList",
+        "ListSize": 2,
+        "List": [
+            {
+                "Type": "Hitable",
+                "Class": "Sphere",
+                "Radius": 10.0,
+                "Center": {
+                    "X": 0.0,
+                    "Y": -10.0,
+                    "Z": 0.0
+                },
+                "Material": {
+                    "Type": "Material",
+                    "Class": "Lambertian",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "CheckerTexture",
+                        "OddTexture": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.20000000298023225,
+                                "Y": 0.30000001192092898,
+                                "Z": 0.10000000149011612
+                            }
+                        },
+                        "EvenTexture": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.8999999761581421,
+                                "Y": 0.8999999761581421,
+                                "Z": 0.8999999761581421
+                            }
+                        }
+                    },
+                    "PDF": {
+                        "Type": "PDF",
+                        "Class": "CosinePDF",
+                        "UVW": {
+                            "U": {
+                                "X": -0.8164965510368347,
+                                "Y": 0.40824827551841738,
+                                "Z": 0.40824827551841738
+                            },
+                            "V": {
+                                "X": 0.0,
+                                "Y": -0.7071067690849304,
+                                "Z": 0.7071067690849304
+                            },
+                            "W": {
+                                "X": -0.5773502588272095,
+                                "Y": -0.5773502588272095,
+                                "Z": -0.5773502588272095
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                "Type": "Hitable",
+                "Class": "Sphere",
+                "Radius": 10.0,
+                "Center": {
+                    "X": 0.0,
+                    "Y": 10.0,
+                    "Z": 0.0
+                },
+                "Material": {
+                    "Type": "Material",
+                    "Class": "Lambertian",
+                    "Albedo": {
+                        "Type": "Texture",
+                        "Class": "CheckerTexture",
+                        "OddTexture": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.20000000298023225,
+                                "Y": 0.30000001192092898,
+                                "Z": 0.10000000149011612
+                            }
+                        },
+                        "EvenTexture": {
+                            "Type": "Texture",
+                            "Class": "ConstantColorTexture",
+                            "Color": {
+                                "X": 0.8999999761581421,
+                                "Y": 0.8999999761581421,
+                                "Z": 0.8999999761581421
+                            }
+                        }
+                    },
+                    "PDF": {
+                        "Type": "PDF",
+                        "Class": "CosinePDF",
+                        "UVW": {
+                            "U": {
+                                "X": -0.8164965510368347,
+                                "Y": 0.40824827551841738,
+                                "Z": 0.40824827551841738
+                            },
+                            "V": {
+                                "X": 0.0,
+                                "Y": -0.7071067690849304,
+                                "Z": 0.7071067690849304
+                            },
+                            "W": {
+                                "X": -0.5773502588272095,
+                                "Y": -0.5773502588272095,
+                                "Z": -0.5773502588272095
+                            }
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}

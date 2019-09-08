@@ -1,3 +1,6 @@
 [submodule "3rdParty/assimp"]
 	path = 3rdParty/assimp
 	url = https://github.com/assimp/assimp
+[submodule "3rdParty/RapidJSON"]
+	path = 3rdParty/RapidJSON
+	url = https://github.com/Tencent/rapidjson

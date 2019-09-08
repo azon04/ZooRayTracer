@@ -18,6 +18,7 @@
 #include "Renderer.h"
 
 #include "FileIO/MeshReader.h"
+#include "FileIO/JSONParser.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -49,7 +50,7 @@ Hitable* texture_sphere()
 {
 	int nx, ny, nn;
 	unsigned char *tex_data = stbi_load("Resources/earthmap.jpg", &nx, &ny, &nn, 0);
-	Material *mat = new Lambertian(new ImageTexture(tex_data, nx, ny));
+	Material *mat = new Lambertian(new ImageTexture(tex_data, nx, ny, "Resources/earthmap.jpg"));
 
 	return new Sphere(Vec3(0.0f, 0.0f, 0.0f), 2.0f, mat);
 }
@@ -209,7 +210,7 @@ Hitable* final_chapter2()
 
 	int nx, ny, nn;
 	unsigned char* textData = stbi_load("Resources/earthmap.jpg", &nx, &ny, &nn, 0);
-	Material* emat = new Lambertian(new ImageTexture(textData, nx, ny));
+	Material* emat = new Lambertian(new ImageTexture(textData, nx, ny, "Resources/earthmap.jpg"));
 	list[l++] = new Sphere(Vec3(400.0f, 200.0f, 400.0f), 100.0f, emat);
 	Texture* pertext = new NoiseTexture(0.1f);
 	list[l++] = new Sphere(Vec3(220.0f, 280.0f, 300.0f), 80.0f, new Lambertian(pertext));
@@ -227,14 +228,21 @@ Hitable* final_chapter2()
 
 int main()
 {
-	Hitable* light_list;
-	//hitable* world = two_perlin_spheres();
-	//hitable* world = simple_light();
+	Hitable* light_list = nullptr;
+	
+#if 0
+	JSONWriter jsonWriter;
+	jsonWriter.writeWorld(two_perlin_spheres(), "Scene/two_perlin_spheres.json");
+	jsonWriter.writeWorld(two_spheres(), "Scene/two_spheres.json");
+	jsonWriter.writeWorld(random_scene(), "Scene/random_scene.json");
+	jsonWriter.writeWorld(texture_sphere(), "Scene/texture_sphere.json");
+	jsonWriter.writeWorld(simple_light(), "Scene/simple_light.json");
 	Hitable* world = cornell_box(&light_list);
-	//hitable* world = cornell_smoke();
-	//hitable* world = final_chapter2();
-	//hitable* world = texture_sphere();
-	//hitable* world = random_scene();
+	jsonWriter.writeWorld(world, "Scene/cornell_box.json", light_list);
+	jsonWriter.writeWorld(cornell_smoke(), "Scene/cornell_smoke.json");
+	jsonWriter.writeWorld(final_chapter2(), "Scene/final_chapter2.json");
+#else
+	Hitable* world = random_scene();
 
 	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
 	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
@@ -252,6 +260,7 @@ int main()
 	renderer.height = 500;
 	renderer.ray_depth = 25;
 	renderer.render(cam, world, light_list);
+#endif
 
 	return 0;
 }

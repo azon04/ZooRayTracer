@@ -4,6 +4,7 @@
 #include "Hitable.h"
 #include "Texture.h"
 #include "PDF.h"
+#include "JSONParseable.h"
 
 struct ScatterRecord
 {
@@ -13,12 +14,14 @@ struct ScatterRecord
 	PDF *pdf_ptr = nullptr;
 };
 
-class Material
+class Material : public JSONParseable
 {
 public:
 	virtual bool scatter(const Ray& r_in, const HitRecord& rec, ScatterRecord& srec) const { return false; };
 	virtual float scattering_pdf(const Ray& r_in, const HitRecord& rec, Ray& scattered) const { return 1.0f; }
 	virtual Vec3 emitted(const Ray& r_in, const HitRecord& rec, float u, float v, const Vec3& p) const { return Vec3(0.0f); }
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 };
 
 class Lambertian : public Material 
@@ -44,6 +47,9 @@ public:
 		srec.pdf_ptr = pdf;
 		return true;
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	cosine_pdf* pdf;
 	Texture* albedo;
 };
@@ -72,6 +78,8 @@ public:
 		return true;
 	}
 
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Vec3 albedo;
 	float fuzz;
 };
@@ -81,6 +89,8 @@ class Dielectric : public Material
 public:
 	Dielectric(float ri) : ref_idx(ri) {}
 	virtual bool scatter(const Ray& r_in, const HitRecord& rec, ScatterRecord& srec) const;
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
 
 	float ref_idx;
 };
@@ -97,7 +107,11 @@ public:
 		else
 			return Vec3(0.0f, 0.0f, 0.0f);
 	}
+
+	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+
 	Texture* emit;
+
 };
 
 #endif
