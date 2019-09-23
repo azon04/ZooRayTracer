@@ -62,11 +62,24 @@ void Dielectric::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* d
 	jsonObject.AddMember("RefIndex", ref_idx, document->GetAllocator());
 }
 
+void Dielectric::readJSON(rapidjson::Value* jsonValue)
+{
+	Material::readJSON(jsonValue);
+
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+	READ_JSON_OBJECT_FLOAT(jsonObject, "RefIndex", ref_idx);
+}
+
 void Material::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
 {
 	jsonValue->SetObject();
 	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
 	jsonObject.AddMember("Type", "Material", document->GetAllocator());
+}
+
+void Material::readJSON(rapidjson::Value* jsonValue)
+{
+
 }
 
 void Lambertian::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
@@ -82,19 +95,17 @@ void Lambertian::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* d
 		albedo->writeToJSON(&textureValue, document);
 	}
 	jsonObject.AddMember("Albedo", textureValue, document->GetAllocator());
+}
 
-	// Write the PDF to json
-	if (pdf)
-	{
-		rapidjson::Value pdfValue;
-		pdf->writeToJSON(&pdfValue, document);
-		jsonObject.AddMember("PDF", pdfValue, document->GetAllocator());
-	}
+void Lambertian::readJSON(rapidjson::Value* jsonValue)
+{
+	Material::readJSON(jsonValue);
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+	READ_JSON_OBJECT_TEXTURE(jsonObject, "Albedo", albedo);
 }
 
 void Metal::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
 {
-
 	Material::writeToJSON(jsonValue, document);
 
 	rapidjson::Value::Object& jsonObject = jsonValue->GetObject();
@@ -105,6 +116,16 @@ void Metal::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* docume
 	rapidjson::Value albedoValue;
 	Vec3ToJSON(albedo, albedoValue, document);
 	jsonObject.AddMember("Albedo", albedoValue, document->GetAllocator());
+}
+
+void Metal::readJSON(rapidjson::Value* jsonValue)
+{
+	Material::readJSON(jsonValue);
+
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+
+	READ_JSON_OBJECT_FLOAT(jsonObject, "Fuzziness", fuzz);
+	READ_JSON_OBJECT_VEC3(jsonObject, "Albedo", albedo);
 }
 
 void DiffuseLight::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document)
@@ -121,4 +142,13 @@ void DiffuseLight::writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document*
 		emit->writeToJSON(&emitTextureValue, document);
 		jsonObject.AddMember("EmitterTexture", emitTextureValue, document->GetAllocator());
 	}
+}
+
+void DiffuseLight::readJSON(rapidjson::Value* jsonValue)
+{
+	Material::readJSON(jsonValue);
+
+	rapidjson::Value::Object jsonObject = jsonValue->GetObject();
+
+	READ_JSON_OBJECT_TEXTURE(jsonObject, "EmitterTexture", emit);
 }

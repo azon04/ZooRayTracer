@@ -53,10 +53,17 @@ Vec3 Renderer::color(const Ray& r, Hitable* world, Hitable* light_shape, int dep
 			{
 				return srec.attenuation * color(srec.specular_ray, world, light_shape, depth + 1);
 			}
+			else if (light_shape)
+			{
+				HitablePDF p0(light_shape, rec.p);
+				MixturePDF p(&p0, srec.pdf_ptr);
+				Ray scattered = Ray(rec.p, p.generate(), r.time());
+				pdf_val = p.value(scattered.direction());
+				return emitted + srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered) * color(scattered, world, light_shape, depth + 1) / pdf_val;
+			}
 			else
 			{
-				Hitable_pdf p0(light_shape, rec.p);
-				Mixture_pdf p(&p0, srec.pdf_ptr);
+				CosinePDF p(rec.normal);
 				Ray scattered = Ray(rec.p, p.generate(), r.time());
 				pdf_val = p.value(scattered.direction());
 				return emitted + srec.attenuation * rec.mat_ptr->scattering_pdf(r, rec, scattered) * color(scattered, world, light_shape, depth + 1) / pdf_val;

@@ -30,6 +30,8 @@ public:
 		rapidjson::Value::Object jsonObject = jsonValue->GetObject();
 		jsonObject.AddMember("Type", "Hitable", document->GetAllocator());
 	}
+
+	virtual void readJSON(rapidjson::Value* jsonValue) {}
 };
 
 #endif

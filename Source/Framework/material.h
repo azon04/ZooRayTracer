@@ -22,14 +22,20 @@ public:
 	virtual Vec3 emitted(const Ray& r_in, const HitRecord& rec, float u, float v, const Vec3& p) const { return Vec3(0.0f); }
 
 	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+	virtual void readJSON(rapidjson::Value* jsonValue);
 };
 
 class Lambertian : public Material 
 {
 public:
+	Lambertian()
+	{
+		pdf = new CosinePDF(Vec3());
+	}
+
 	Lambertian(Texture* a) : albedo(a) 
 	{
-		pdf = new cosine_pdf(Vec3());
+		pdf = new CosinePDF(Vec3());
 	}
 
 	virtual float scattering_pdf(const Ray& r_in, const HitRecord& rec, Ray& scattered) const
@@ -49,14 +55,21 @@ public:
 	}
 
 	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+	virtual void readJSON(rapidjson::Value* jsonValue);
 
-	cosine_pdf* pdf;
+	CosinePDF* pdf;
 	Texture* albedo;
 };
 
 class Metal : public Material
 {
 public:
+	Metal()
+	{
+		albedo = Vec3(0.0f);
+		fuzz = 0.0f;
+	}
+
 	Metal(const Vec3& a, float f) : albedo(a) 
 	{
 		if (f < 1.0f)
@@ -79,6 +92,7 @@ public:
 	}
 
 	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+	virtual void readJSON(rapidjson::Value* jsonValue);
 
 	Vec3 albedo;
 	float fuzz;
@@ -87,10 +101,12 @@ public:
 class Dielectric : public Material
 {
 public:
+	Dielectric() : ref_idx(1.0f) {}
 	Dielectric(float ri) : ref_idx(ri) {}
 	virtual bool scatter(const Ray& r_in, const HitRecord& rec, ScatterRecord& srec) const;
 
 	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+	virtual void readJSON(rapidjson::Value* jsonValue);
 
 	float ref_idx;
 };
@@ -98,6 +114,7 @@ public:
 class DiffuseLight : public Material
 {
 public:
+	DiffuseLight() : emit(nullptr) {}
 	DiffuseLight(Texture* a) : emit(a) {}
 	virtual bool scatter(const Ray& r_in, const HitRecord& rec, ScatterRecord& srec) const { return false; }
 	virtual Vec3 emitted(const Ray& r_in, const HitRecord& rec, float u, float v, const Vec3& p) const
@@ -109,9 +126,9 @@ public:
 	}
 
 	virtual void writeToJSON(rapidjson::Value* jsonValue, rapidjson::Document* document);
+	virtual void readJSON(rapidjson::Value* jsonValue);
 
 	Texture* emit;
-
 };
 
 #endif

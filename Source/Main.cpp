@@ -13,29 +13,63 @@
 #include "BVH.h"
 #include "Box.h"
 #include "PDF.h"
-#include "constant_medium.h"
+#include "ConstantMedium.h"
 #include "Mesh.h"
 #include "Renderer.h"
+
+#include "stb_image.h"
 
 #include "FileIO/MeshReader.h"
 #include "FileIO/JSONParser.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-Hitable* two_perlin_spheres()
+WorldInfo two_perlin_spheres()
 {
+	WorldInfo worldInfo;
+
+	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
+	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
+	//vec3 lookAt(0.0f, 0.0f, 0.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	Texture* pertext = new NoiseTexture(5.0f);
 	Hitable** list = new Hitable*[2];
 
 	list[0] = new Sphere(Vec3(0, -1000.0f, 0.0f), 1000.0f, new Lambertian(pertext));
 	list[1] = new Sphere(Vec3(0, 2.0f, 0.0f), 2.0f, new Lambertian(pertext));
 
-	return new HitableList(list, 2);
+	worldInfo.world = new HitableList(list, 2);
+	worldInfo.lightList = nullptr;
+
+	return worldInfo;
 }
 
-Hitable* two_spheres()
+WorldInfo two_spheres()
 {
+	WorldInfo worldInfo;
+
+	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
+	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
+	//vec3 lookAt(0.0f, 0.0f, 0.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	int n = 5;
 	Hitable** list = new Hitable*[n + 1];
 	Texture* checker = new CheckerTexture(new ConstantColorTexture(Vec3(0.2f, 0.3f, 0.1f)), new ConstantColorTexture(Vec3(0.9f)));
@@ -43,20 +77,56 @@ Hitable* two_spheres()
 	list[0] = new Sphere(Vec3(0, -10.0f, 0.0f), 10.0f, new Lambertian(checker));
 	list[1] = new Sphere(Vec3(0, 10.0f, 0.0f), 10.0f, new Lambertian(checker));
 
-	return new HitableList(list, 2);
+	worldInfo.world = new HitableList(list, 2);
+	worldInfo.lightList = nullptr;
+
+	return worldInfo;
 }
 
-Hitable* texture_sphere()
+WorldInfo texture_sphere()
 {
+	WorldInfo worldInfo;
+
+	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
+	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
+	//vec3 lookAt(0.0f, 0.0f, 0.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	int nx, ny, nn;
 	unsigned char *tex_data = stbi_load("Resources/earthmap.jpg", &nx, &ny, &nn, 0);
 	Material *mat = new Lambertian(new ImageTexture(tex_data, nx, ny, "Resources/earthmap.jpg"));
 
-	return new Sphere(Vec3(0.0f, 0.0f, 0.0f), 2.0f, mat);
+	worldInfo.world = new Sphere(Vec3(0.0f, 0.0f, 0.0f), 2.0f, mat);
+	worldInfo.lightList = nullptr;
+
+	return worldInfo;
 }
 
-Hitable* random_scene()
+WorldInfo random_scene()
 {
+	WorldInfo worldInfo;
+
+	Vec3 lookFrom(13.0f, 2.0f, 3.0f);
+	Vec3 lookAt(0.0f, 0.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.1f;
+	float vfov = 20.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 10;
+	worldInfo.renderSettings.width = 1200;
+	worldInfo.renderSettings.height = 800;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	int n = 500;
 	Hitable** list = new Hitable*[n + 1];
 	Texture* checker = new CheckerTexture(new ConstantColorTexture(Vec3(0.2f, 0.3f, 0.1f)), new ConstantColorTexture(Vec3(0.9f)));
@@ -94,22 +164,60 @@ Hitable* random_scene()
 	Texture* pertext = new NoiseTexture(5.0f);
 	list[i++] = new Sphere(Vec3(2.0f, 0.5f, 2.0f), 0.5f, new Lambertian(pertext));
 
-	return new BVHNode(list, i, 0.0f, 1.0f);
+	worldInfo.world = new BVHNode(list, i, 0.0f, 1.0f);
+	worldInfo.lightList = nullptr;
+
+	return worldInfo;
 }
 
-Hitable* simple_light()
+WorldInfo simple_light()
 {
+	WorldInfo worldInfo;
+
+	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
+	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
+	//vec3 lookAt(0.0f, 0.0f, 0.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	Texture* pertext = new NoiseTexture(4);
 	Hitable **list = new Hitable *[4];
 	list[0] = new Sphere(Vec3(0.0f, -1000.0f, 0), 1000.0f, new Lambertian(pertext));
 	list[1] = new Sphere(Vec3(0.0f, 2.0f, 0.0f), 2.0f, new Lambertian(pertext));
 	list[2] = new Sphere(Vec3(0.0f, 7.0f, 0.0f), 2.0f, new DiffuseLight(new ConstantColorTexture(Vec3(4.0f))));
 	list[3] = new XYRect(3.0f, 5.0f, 1.0f, 3.0f, -2.0f, new DiffuseLight(new ConstantColorTexture(Vec3(4.0f))));
-	return new HitableList(list, 4);
+	worldInfo.world = new HitableList(list, 4);
+	worldInfo.lightList = nullptr;
+
+	return worldInfo;
 }
 
-Hitable* cornell_box(Hitable** light_list)
+WorldInfo cornell_box()
 {
+	WorldInfo worldInfo;
+
+	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
+	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
+	//vec3 lookAt(0.0f, 0.0f, 0.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	Hitable **list = new Hitable *[8];
 	int i = 0;
 	Material* red = new Lambertian(new ConstantColorTexture(Vec3(0.65f, 0.05f, 0.05f)));
@@ -139,13 +247,29 @@ Hitable* cornell_box(Hitable** light_list)
 	Hitable** a = new Hitable*[2];
 	a[0] = new XZRect(213.0f, 343.0f, 227.0f, 332.0f, 554.0f, nullptr);
 	a[1] = new Sphere(Vec3(190.0f, 90.0f, 190.0f), 90, nullptr);
-	*light_list = new HitableList(a, 2);
 
-	return new HitableList(list, i);
+	worldInfo.world = new HitableList(list, i);
+	worldInfo.lightList = new HitableList(a, 2);
+
+	return worldInfo;
 }
 
-Hitable* cornell_smoke()
+WorldInfo cornell_smoke()
 {
+	WorldInfo worldInfo;
+
+	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	Hitable **list = new Hitable *[8];
 	int i = 0;
 	Material* red = new Lambertian(new ConstantColorTexture(Vec3(0.65f, 0.05f, 0.05f)));
@@ -161,14 +285,31 @@ Hitable* cornell_smoke()
 	list[i++] = new FlipNormals(new XYRect(0.0f, 555.0f, 0.0f, 555.0f, 555.0f, white));
 	Hitable* b1 = new TranslateHitable(new RotateY(new Box(Vec3(0.0f), Vec3(165.0f, 165.0f, 165.0f), white), -18.0f), Vec3(130.0f, 0.0f, 65.0f));
 	Hitable* b2 = new TranslateHitable(new RotateY(new Box(Vec3(0.0f), Vec3(165.0f, 330.0f, 165.0f), white), 15.0f), Vec3(265.0f, 0.0f, 295.0f));
-	list[i++] = new constant_medium(b1, 0.01f, new ConstantColorTexture(Vec3(1.0f)));
-	list[i++] = new constant_medium(b2, 0.01f, new ConstantColorTexture(Vec3(0.0f)));
+	list[i++] = new ConstantMedium(b1, 0.01f, new ConstantColorTexture(Vec3(1.0f)));
+	list[i++] = new ConstantMedium(b2, 0.01f, new ConstantColorTexture(Vec3(0.0f)));
 
-	return new HitableList(list, i);
+	worldInfo.world = new HitableList(list, i);
+	worldInfo.lightList = nullptr;
+
+	return worldInfo;
 }
 
-Hitable* final_chapter2()
+WorldInfo final_chapter2()
 {
+	WorldInfo worldInfo;
+
+	Vec3 lookFrom(200.0f, 278.0f, -600.0f);
+	Vec3 lookAt(278.0f, 278.0f, 0.0f);
+	float dist_to_focus = 10.0f;
+	float aperture = 0.0f;
+	float vfov = 40.0f;
+
+	worldInfo.camera = Camera(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(500) / float(500), aperture, dist_to_focus, 0.0f, 1.0f);
+	worldInfo.renderSettings.sampleCount = 250;
+	worldInfo.renderSettings.width = 500;
+	worldInfo.renderSettings.height = 500;
+	worldInfo.renderSettings.rayDepth = 25;
+
 	int nb = 20;
 	Hitable** list = new Hitable*[30];
 	Hitable** boxlist = new Hitable*[10000];
@@ -194,7 +335,7 @@ Hitable* final_chapter2()
 	list[l++] = new BVHNode(boxlist, b, 0, 1);
 	
 	Material* light = new DiffuseLight(new ConstantColorTexture(Vec3(7.0f)));
-	list[l++] = new XZRect(123.0f, 423.0f, 147.0f, 412.0f, 554.0f, light);
+	list[l++] = new FlipNormals(new XZRect(123.0f, 423.0f, 147.0f, 412.0f, 554.0f, light));
 	
 	Vec3 center(400.0f, 400.0f, 200.0f);
 	list[l++] = new MovingSphere(center, center + Vec3(30.0f, 0.0f, 0.0f), 0, 1.0f, 50.0f, new Lambertian(new ConstantColorTexture(Vec3(0.77f, 0.3f, 0.1f))));
@@ -203,10 +344,10 @@ Hitable* final_chapter2()
 
 	Hitable* boundary = new Sphere(Vec3(360.0f, 150.0f, 145.0f), 70.0f, new Dielectric(1.5f));
 	list[l++] = boundary;
-	list[l++] = new constant_medium(boundary, 0.2f, new ConstantColorTexture(Vec3(0.2f, 0.4f, 0.9f)));
+	list[l++] = new ConstantMedium(boundary, 0.2f, new ConstantColorTexture(Vec3(0.2f, 0.4f, 0.9f)));
 	
 	boundary = new Sphere(Vec3(0.0f), 5000, new Dielectric(1.5f));
-	list[l++] = new constant_medium(boundary, 0.0001f, new ConstantColorTexture(Vec3(1.0f, 1.0f, 1.0f)));
+	list[l++] = new ConstantMedium(boundary, 0.0001f, new ConstantColorTexture(Vec3(1.0f, 1.0f, 1.0f)));
 
 	int nx, ny, nn;
 	unsigned char* textData = stbi_load("Resources/earthmap.jpg", &nx, &ny, &nn, 0);
@@ -223,43 +364,36 @@ Hitable* final_chapter2()
 	}
 	list[l++] = new TranslateHitable(new RotateY(new BVHNode(boxlist2, ns, 0.0f, 1.0f), 15.0f), Vec3(-100.0f, 270.0f, 395.0f));
 
-	return new HitableList(list, l);
+	worldInfo.world = new HitableList(list, l);
+	worldInfo.lightList = nullptr; // new FlipNormals(new XZRect(123.0f, 423.0f, 147.0f, 412.0f, 554.0f, light));
+
+	return worldInfo;
 }
 
 int main()
 {
-	Hitable* light_list = nullptr;
-	
 #if 0
-	JSONWriter jsonWriter;
-	jsonWriter.writeWorld(two_perlin_spheres(), "Scene/two_perlin_spheres.json");
-	jsonWriter.writeWorld(two_spheres(), "Scene/two_spheres.json");
-	jsonWriter.writeWorld(random_scene(), "Scene/random_scene.json");
-	jsonWriter.writeWorld(texture_sphere(), "Scene/texture_sphere.json");
-	jsonWriter.writeWorld(simple_light(), "Scene/simple_light.json");
-	Hitable* world = cornell_box(&light_list);
-	jsonWriter.writeWorld(world, "Scene/cornell_box.json", light_list);
-	jsonWriter.writeWorld(cornell_smoke(), "Scene/cornell_smoke.json");
-	jsonWriter.writeWorld(final_chapter2(), "Scene/final_chapter2.json");
+	JSONParser jsonWriter;
+	jsonWriter.writeWorld("Scene/two_perlin_spheres.json", two_perlin_spheres());
+	jsonWriter.writeWorld("Scene/two_spheres.json", two_spheres());
+	jsonWriter.writeWorld("Scene/random_scene.json", random_scene());
+	jsonWriter.writeWorld("Scene/texture_sphere.json", texture_sphere());
+	jsonWriter.writeWorld("Scene/simple_light.json", simple_light());
+	jsonWriter.writeWorld("Scene/cornell_box.json", cornell_box());
+	jsonWriter.writeWorld("Scene/cornell_smoke.json", cornell_smoke());
+	jsonWriter.writeWorld("Scene/final_chapter2.json", final_chapter2());
 #else
-	Hitable* world = random_scene();
+	WorldInfo worldInfo = final_chapter2();
 
-	//vec3 lookFrom(13.0f, 1.0f, 3.0f);
-	Vec3 lookFrom(278.0f, 278.0f, -800.0f);
-	//vec3 lookAt(0.0f, 0.0f, 0.0f);
-	Vec3 lookAt(278.0f, 278.0f, 0.0f);
-	float dist_to_focus = 10.0f;
-	float aperture = 0.0f;
-	float vfov = 40.0f;
-
-	Camera cam(lookFrom, lookAt, Vec3(0.0f, 1.0f, 0.0f), vfov, float(nx)/float(ny), aperture, dist_to_focus, 0.0f, 1.0f);
+	//JSONParser parser;
+	//parser.readWorld("Scene/final_chapter2.json", worldInfo);
 
 	Renderer renderer;
-	renderer.sample_count = 250;
-	renderer.width = 500;
-	renderer.height = 500;
-	renderer.ray_depth = 25;
-	renderer.render(cam, world, light_list);
+	renderer.sample_count = worldInfo.renderSettings.sampleCount;
+	renderer.width = worldInfo.renderSettings.width;
+	renderer.height = worldInfo.renderSettings.height;
+	renderer.ray_depth = worldInfo.renderSettings.rayDepth;
+	renderer.render(worldInfo.camera, worldInfo.world, worldInfo.lightList);
 #endif
 
 	return 0;

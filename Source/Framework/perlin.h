@@ -46,9 +46,9 @@ public:
 		float v = p.y() - floor(p.y());
 		float w = p.z() - floor(p.z());
 
-		int i = floor(p.x());
-		int j = floor(p.y());
-		int k = floor(p.z());
+		int i = int(floor(p.x()));
+		int j = int(floor(p.y()));
+		int k = int(floor(p.z()));
 
 		Vec3 c[2][2][2];
 		for (int di = 0; di < 2; di++)

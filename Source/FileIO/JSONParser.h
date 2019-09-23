@@ -2,13 +2,31 @@
 #define _JSON_PARSER_H_
 
 #include "rapidjson/document.h"
+#include "Camera.h"
 
 class Hitable;
-class JSONWriter
+
+struct WorldInfo
+{
+	Hitable* world;
+	Hitable* lightList;
+	Camera camera;
+
+	struct RenderSettings
+	{
+		int sampleCount;
+		int width;
+		int height;
+		int rayDepth;
+	} renderSettings;
+};
+
+class JSONParser
 {
 public:
 
-	void writeWorld(Hitable* world, const char* filePath, Hitable* lightList = nullptr);
+	void writeWorld(const char* filePath, WorldInfo&  world);
+	bool readWorld(const char* filePath, WorldInfo& world);
 };
 
 #endif

@@ -44,7 +44,7 @@ Mesh* MeshReader::processNode(aiNode* node, const aiScene* scene, float scale)
 	{
 		aiMesh* _mesh = scene->mMeshes[node->mMeshes[0]];
 		result = new Mesh(_mesh->mNumFaces);
-		for (int i = 0; i < _mesh->mNumFaces; i++)
+		for (unsigned int i = 0; i < _mesh->mNumFaces; i++)
 		{
 			aiFace& face = _mesh->mFaces[i];
 			if (face.mNumIndices > 3)
@@ -53,7 +53,7 @@ Mesh* MeshReader::processNode(aiNode* node, const aiScene* scene, float scale)
 			}
 
 			Vec3 points[3];
-			for (int j = 0; j < face.mNumIndices; j++)
+			for (unsigned int j = 0; j < face.mNumIndices; j++)
 			{
 				unsigned int faceIndex = face.mIndices[j];
 				points[j] = Vec3(_mesh->mVertices[faceIndex].x * scale, _mesh->mVertices[faceIndex].y * scale, _mesh->mVertices[faceIndex].z * scale);
